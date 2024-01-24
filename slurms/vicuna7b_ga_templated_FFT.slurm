@@ -8,7 +8,7 @@
 
 module load Python/3.8.6-GCCcore-10.2.0
 module load CUDA/11.7.0
-source /mnt/rstor/CSE_CSDS_VXC204/sxz517/venv_vault/mh_model_edit/bin/activate
+source /mnt/vstor/CSE_CSDS_VXC204/sxz517/venv_vault/mh_model_edit/bin/activate
 
 export TRANSFORMERS_CACHE=/mnt/rstor/CSE_CSDS_VXC204/sxz517/
 export HF_HOME=/mnvicuna7b_original_TFF.slurmt/rstor/CSE_CSDS_VXC204/sxz517/
