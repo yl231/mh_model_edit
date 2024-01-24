@@ -140,6 +140,20 @@ def main():
         # Done.
         sc_contra = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
     
+    elif (model_name == "llama-7b"):
+        gptj_tokenizer = AutoTokenizer.from_pretrained("NousResearch/Llama-2-7b-chat-hf")
+        model = AutoModelForCausalLM.from_pretrained("NousResearch/Llama-2-7b-chat-hf").to(device)
+        
+        # llm generation stopping criteria:
+        # retrieve facts:
+        sc_facts = StoppingCriteriaList([StoppingCriteriaSub(stops=[8015, 2546, 1490, 2114, 29901])])
+        
+        # subquestion:
+        sc_subq = StoppingCriteriaList([StoppingCriteriaSub(stops=[13, 4035, 12470, 29901])])
+        
+        # Done.
+        sc_contra = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
+    
     else:
         model = None
         gptj_tokenizer = None
@@ -176,7 +190,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
     
     # embedding of facts in retrieve model:
-    embs = get_sent_embeddings(new_facts, contriever, tokenizer)
+    embs = get_sent_embeddings(new_facts, contriever, tokenizer, device)
     
     logger.info("Prepare works are Done!")
     evaluate_on_dataset_full_functionality(dataset=dataset,
@@ -224,7 +238,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
         for q in d["questions"]:
             found_ans = False
             prompt = task_prompt + "\n\nQuestion: " + q
-            num_single_hops = (d['case_id']-1) // 1000 + 2
+            num_single_hops = (d['case_id'] - 1) // 1000 + 2
             llm_answer = None
             ans = None
             for i in range(4):  # max of 4 hops
