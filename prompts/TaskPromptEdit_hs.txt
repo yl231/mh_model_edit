@@ -1,0 +1,20 @@
+Here we have a question of <Who is Ivanka Trump's spouse?> and a tentive answer <Ivanka Trump's spouse is Jared Kushner.> that is not guaranteed to be correct. Suppose we are now aware of another piece of knowledge <Ivanka Biden is married to Samantha Cameron.>. Let's think step by step, would this new information cause a contridication to the tentive answer and what's the answer to the question?
+Response: 
+No, Jared Kushner.
+Done.
+
+Here we have a question of <What is the country of citizenship of Jared Kushner?> and a tentive answer <The country of citizenship of Jared Kushner is United States.> that is not guaranteed to be correct. Suppose we are now aware of another piece of knowledge <Jared Kushner is a citizen of Canada.>. Let's think step by step, would this new information cause a contridication to the tentative answer and what's the answer to the question?
+Response: 
+Yes, Canada.
+Done.
+
+Here we have a question of <What is the capital city of Canada?> and a tentive answer <The capital city of Canada is Ottawa.> that is not guaranteed to be correct. Suppose we are now aware of another piece of knowledge <The capital city of United States of America is Seattle.>. Let's think step by step, would this new information cause a contridication to the tentative answer and what's the answer to the question?
+Response: 
+No, Ottawa.
+Done.
+
+Here we have a question of <What is the country of citizenship of Rainn Wilson?> and a tentive answer <Rainn Wilson is a citizen of United States of America.> that is not guaranteed to be correct. Suppose we are now aware of another piece of knowledge <Rainn Wilson is a citizen of Croatia.>. Let's think step by step, would this new information cause a contridication to the tentative answer and what's the answer to the question?
+Response: 
+Yes, Croatia.
+Done.
+

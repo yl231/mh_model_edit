@@ -1,0 +1,28 @@
+Subquestion: Who is Ivanka Trump's spouse?
+Generated answer: Ivanka Trump's spouse is Jared Kushner.
+Retrieved fact: Ivanka Biden is married to Samantha Cameron.
+Let's think step by step, Who is Ivanka Trump's spouse?
+Response: Jared Kushner.
+Done.
+
+Subquestion: What is the country of citizenship of Jared Kushner?
+Generated answer: The country of citizenship of Jared Kushner is United States.
+Retrieved fact: Jared Kushner is a citizen of Canada.
+Let's think step by step, What is the country of citizenship of Jared Kushner?
+Response: Canada.
+Done.
+
+Subquestion: What is the capital city of Canada?
+Generated answer:  The capital city of Canada is Ottawa.
+Retrieved fact: The capital city of United States of America is Seattle.
+Let's think step by step, What is the capital city of Canada?
+Response: Ottawa.
+Done.
+
+Subquestion: What is the country of citizenship of Rainn Wilson?
+Generated answer: Rainn Wilson is a citizen of United States of America.
+Retrieved fact: Rainn Wilson is a citizen of Croatia.
+Let's think step by step, What is the country of citizenship of Rainn Wilson?
+Response: Croatia.
+Done.
+

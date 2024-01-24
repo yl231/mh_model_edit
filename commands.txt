@@ -1,0 +1,12 @@
+python model_edit_main.py
+--model_name vicuna-7b
+--device cuda
+--file_path /mnt/rstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code/
+--seed 100
+--fact_retrieve True
+--subquestion_breakdown True
+--cot_contradiction True
+--output_dir /mnt/rstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/output/
+--delete_duplicate_output_file False
+--start 0
+--end 20

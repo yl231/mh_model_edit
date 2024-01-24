@@ -1,0 +1,14 @@
+Hi, this is a repo for the Mello replicate and some additional techniques that aim to improve the overall
+performance of model edit on M-QUAKE dataset. Original paper: https://github.com/princeton-nlp/MQuAKE.
+
+The additional techniques are:
+1. hard-code fact-retrieval.
+2. hard-code subquestion breakdown.
+3. CoT prompting for contradiction detection.
+
+Each feature is independent wrt the others. Therefore, you permute them as you want to. In the "Command" folder, there
+are a few pre-written slurm script for you to try ad play around.
+
+Note:
+1. if you disable all three features by selecting them (fact_retrieve, subquestion_breakdown, cot_contradiction)
+ as False, the setting would be the setting in the original paper.

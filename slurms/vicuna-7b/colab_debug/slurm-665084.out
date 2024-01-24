@@ -1,0 +1,41 @@
+11/15/2023 16:35:41 - INFO - __main__ -   Args are parsed. And as follow: 
+ model_name: vicuna-7b
+device: cuda
+file_path: /mnt/rstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code/
+seed: 100
+fact_retrieve: False
+subquestion_breakdown: False
+cot_contradiction: False
+output_dir: /mnt/rstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/output/
+delete_duplicate_output_file: True
+start: 0
+end: 1000
+fact_query_on: subquestion
+edit_num: 3000
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. If you see this, DO NOT PANIC! This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=True`. This should only be set if you understand what it means, and thouroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:08<00:08,  8.30s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:11<00:00,  5.10s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:11<00:00,  5.58s/it]
+11/15/2023 16:36:38 - INFO - __main__ -   Files are read and ready to be used!
+  0%|          | 0/88 [00:00<?, ?it/s]  1%|          | 1/88 [00:00<01:02,  1.39it/s]  9%|▉         | 8/88 [00:00<00:06, 12.50it/s] 17%|█▋        | 15/88 [00:00<00:03, 22.85it/s] 25%|██▌       | 22/88 [00:01<00:02, 32.66it/s] 34%|███▍      | 30/88 [00:01<00:01, 42.87it/s] 44%|████▍     | 39/88 [00:01<00:00, 53.13it/s] 53%|█████▎    | 47/88 [00:01<00:00, 59.35it/s] 62%|██████▎   | 55/88 [00:01<00:00, 64.61it/s] 72%|███████▏  | 63/88 [00:01<00:00, 67.73it/s] 82%|████████▏ | 72/88 [00:01<00:00, 72.99it/s] 92%|█████████▏| 81/88 [00:01<00:00, 77.02it/s]100%|██████████| 88/88 [00:01<00:00, 47.10it/s]
+11/15/2023 16:36:41 - INFO - __main__ -   Prepare works are Done!
+  0%|          | 0/1000 [00:00<?, ?it/s]11/15/2023 16:36:53 - INFO - __main__ -   0, 1
+  0%|          | 1/1000 [00:12<3:21:29, 12.10s/it]11/15/2023 16:37:10 - INFO - __main__ -   0, 2
+  0%|          | 2/1000 [00:28<4:07:04, 14.85s/it]11/15/2023 16:37:24 - INFO - __main__ -   0, 3
+  0%|          | 3/1000 [00:42<3:57:50, 14.31s/it]11/15/2023 16:37:47 - INFO - __main__ -   0, 4
+  0%|          | 4/1000 [01:05<4:54:56, 17.77s/it]11/15/2023 16:38:13 - INFO - __main__ -   0, 5
+  0%|          | 5/1000 [01:31<5:45:51, 20.86s/it]11/15/2023 16:38:29 - INFO - __main__ -   0, 6
+  1%|          | 6/1000 [01:47<5:15:33, 19.05s/it]11/15/2023 16:38:56 - INFO - __main__ -   0, 7
+  1%|          | 7/1000 [02:14<5:58:32, 21.66s/it]11/15/2023 16:39:09 - INFO - __main__ -   0, 8
+  1%|          | 8/1000 [02:28<5:15:46, 19.10s/it]11/15/2023 16:39:25 - INFO - __main__ -   0, 9
+  1%|          | 9/1000 [02:43<4:56:35, 17.96s/it]11/15/2023 16:39:40 - INFO - __main__ -   0, 10
+  1%|          | 10/1000 [02:59<4:43:28, 17.18s/it]11/15/2023 16:39:51 - INFO - __main__ -   0, 11
+  1%|          | 11/1000 [03:09<4:11:43, 15.27s/it]11/15/2023 16:40:05 - INFO - __main__ -   0, 12
+  1%|          | 12/1000 [03:24<4:06:20, 14.96s/it]11/15/2023 16:40:19 - INFO - __main__ -   0, 13
+  1%|▏         | 13/1000 [03:37<3:57:15, 14.42s/it]11/15/2023 16:40:31 - INFO - __main__ -   0, 14
+  1%|▏         | 14/1000 [03:49<3:46:13, 13.77s/it]11/15/2023 16:40:43 - INFO - __main__ -   0, 15
+  2%|▏         | 15/1000 [04:01<3:35:47, 13.14s/it]11/15/2023 16:40:55 - INFO - __main__ -   0, 16
+  2%|▏         | 16/1000 [04:14<3:33:50, 13.04s/it]11/15/2023 16:41:08 - INFO - __main__ -   0, 17
+  2%|▏         | 17/1000 [04:27<3:33:43, 13.05s/it]11/15/2023 16:41:21 - INFO - __main__ -   0, 18
+  2%|▏         | 18/1000 [04:40<3:32:26, 12.98s/it]11/15/2023 16:41:40 - INFO - __main__ -   0, 19
+  2%|▏         | 19/1000 [04:58<4:01:04, 14.74s/it]11/15/2023 16:41:54 - INFO - __main__ -   0, 20
+  2%|▏         | 20/1000 [05:13<3:58:03, 14.57s/it]11/15/2023 16:42:09 - INFO - __main__ -   0, 21
+  2%|▏         | 21/1000 [05:28<4:00:33, 14.74s/it]slurmstepd: error: *** JOB 665084 ON aisct03 CANCELLED AT 2023-11-15T16:42:24 ***

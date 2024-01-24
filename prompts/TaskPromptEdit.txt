@@ -1,0 +1,34 @@
+Generated answer: Ivanka Trump's spouse is Jared Kushner.
+Retrieved fact: Ivanka Biden is married to Samantha Cameron.
+Let's think step by step, does the Retrieved fact contradict to generated answer?
+Generated answer says Ivanka Trump marries to Jared Kushner.
+Retrieved fact mentions Ivanka Biden, but Ivanka Biden is a different person than Ivanka Trump.
+Response: Retrieved fact does not contradict to generated answer, so the intermediate answer is: Jared Kushner.
+Done.
+
+Generated answer: The country of citizenship of Jared Kushner is United States.
+Retrieved fact: Jared Kushner is a citizen of Canada.
+Let's think step by step, does the Retrieved fact contradict to generated answer?
+Generated answer says Jared Kushner is a citizen of United States.
+Retrieved fact says Jared Kushner is a citizen of Canada.
+United States is a different place than Canada.
+Response: Retrieved fact contradicts to generated answer, so the intermediate answer is: Canada.
+Done.
+
+Generated answer:  The capital city of Canada is Ottawa.
+Retrieved fact: The capital city of United States of America is Seattle.
+Let's think step by step, does the Retrieved fact contradict to generated answer?
+Generated answer says the capital city of Canada is Ottawa.
+Retrieved fact does not mention the capital city of Canada.
+Response: Retrieved fact does not contradict to generated answer, so the intermediate answer is: Ottawa.
+Done.
+
+Generated answer: Rainn Wilson is a citizen of United States of America.
+Retrieved fact: Rainn Wilson is a citizen of Croatia.
+Let's think step by step, does the Retrieved fact contradict to generated answer?
+Generated answer says Rainn Wilson is a citizen of United States of America.
+Retrieved fact says Rainn Wilson is a citizen of Croatia.
+United States of America is a different place than Croatia.
+Response: Retrieved fact contradicts to generated answer, so the intermediate answer is: Croatia.
+Done.
+

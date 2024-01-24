@@ -1,0 +1,584 @@
+[
+  {
+    "case_id": 2997,
+    "requested_rewrite": [
+      {
+        "prompt": "{} was performed by",
+        "relation_id": "P175",
+        "target_new": {
+          "str": "Madonna",
+          "id": "Q1744"
+        },
+        "target_true": {
+          "str": "The Beatles",
+          "id": "Q1299"
+        },
+        "subject": "Lady Madonna",
+        "question": "Who performed Lady Madonna?"
+      },
+      {
+        "prompt": "The director of {} is",
+        "relation_id": "P1037",
+        "target_new": {
+          "str": "Pedro Almod\u00f3var",
+          "id": "Q55171"
+        },
+        "target_true": {
+          "str": "Guy Oseary",
+          "id": "Q5622519"
+        },
+        "subject": "Madonna",
+        "question": "Who is the director of Madonna?"
+      },
+      {
+        "prompt": "{} is a citizen of",
+        "relation_id": "P27",
+        "target_new": {
+          "str": "Albania",
+          "id": "Q222"
+        },
+        "target_true": {
+          "str": "Spain",
+          "id": "Q29"
+        },
+        "subject": "Pedro Almod\u00f3var",
+        "question": "What is the country of citizenship of Pedro Almod\u00f3var?"
+      },
+      {
+        "prompt": "The official language of {} is",
+        "relation_id": "P37",
+        "target_new": {
+          "str": "Turkish",
+          "id": "Q256"
+        },
+        "target_true": {
+          "str": "Albanian",
+          "id": "Q8748"
+        },
+        "subject": "Albania",
+        "question": "What is the official language of Albania?"
+      }
+    ],
+    "questions": [
+      "What is the official language of the country where the director/manager of Lady Madonna holds citizenship?",
+      "What language is spoken in the home country of Lady Madonna's director/manager?",
+      "What is the official language of the country where the manager of Lady Madonna is a citizen?"
+    ],
+    "answer": "English",
+    "answer_alias": [
+      "en",
+      "eng",
+      "English language"
+    ],
+    "new_answer": "Turkish",
+    "new_answer_alias": [
+      "Anatolian Turkish",
+      "Istanbul Turkish",
+      "tr",
+      "Turkish language",
+      "tur",
+      "T\u00fcrk\u00e7e",
+      "Turkish of Turkey"
+    ],
+    "single_hops": [
+      {
+        "question": "Who performed Lady Madonna?",
+        "cloze": "Lady Madonna was performed by",
+        "answer": "The Beatles",
+        "answer_alias": [
+          "Beatles",
+          "Fab Four",
+          "John, Paul, George, and Ringo",
+          "The Beattles",
+          "The Lads from Liverpool"
+        ]
+      },
+      {
+        "question": "Who is the director of The Beatles?",
+        "cloze": "The director of The Beatles is",
+        "answer": "Brian Epstein",
+        "answer_alias": [
+          "Brian Samuel Epstein"
+        ]
+      },
+      {
+        "question": "What is the country of citizenship of Brian Epstein?",
+        "cloze": "Brian Epstein is a citizen of",
+        "answer": "United Kingdom",
+        "answer_alias": [
+          "Britain",
+          "UK",
+          "G. B.",
+          "GBR",
+          "Great Britain",
+          "GB",
+          "G.B.",
+          "United Kingdom of Great Britain and Northern Ireland",
+          "G B",
+          "G B R",
+          "G.B.R.",
+          "\ud83c\uddec\ud83c\udde7",
+          "Great Britain and Northern Ireland",
+          "The UK",
+          "The United Kingdom of Great Britain and Northern Ireland",
+          "U K",
+          "U. K.",
+          "U.K."
+        ]
+      },
+      {
+        "question": "What is the official language of United Kingdom?",
+        "cloze": "The official language of United Kingdom is",
+        "answer": "English",
+        "answer_alias": [
+          "en",
+          "eng",
+          "English language"
+        ]
+      }
+    ],
+    "new_single_hops": [
+      {
+        "question": "Who performed Lady Madonna?",
+        "cloze": "Lady Madonna was performed by",
+        "answer": "Madonna",
+        "answer_alias": [
+          "Madonna Ciccone",
+          "Madonna Louise Ciccone",
+          "Madonna Louise Veronica Ciccone"
+        ]
+      },
+      {
+        "question": "Who is the director of Madonna?",
+        "cloze": "The director of Madonna is",
+        "answer": "Pedro Almod\u00f3var",
+        "answer_alias": [
+          "Pedro Almodovar"
+        ]
+      },
+      {
+        "question": "What is the country of citizenship of Pedro Almod\u00f3var?",
+        "cloze": "Pedro Almod\u00f3var is a citizen of",
+        "answer": "Albania",
+        "answer_alias": [
+          "AL",
+          "ALB",
+          "People's Republic of Albania",
+          "People's Socialist Republic of Albania",
+          "\ud83c\udde6\ud83c\uddf1",
+          "Republic of Albania",
+          "Republika e Shqip\u00ebris\u00eb",
+          "Republika Popullore e Shqiperise",
+          "Republika Popullore Socialiste e Shqiperise",
+          "Shqip\u00ebris\u00eb"
+        ]
+      },
+      {
+        "question": "What is the official language of Albania?",
+        "cloze": "The official language of Albania is",
+        "answer": "Turkish",
+        "answer_alias": [
+          "Anatolian Turkish",
+          "Istanbul Turkish",
+          "tr",
+          "Turkish language",
+          "tur",
+          "T\u00fcrk\u00e7e",
+          "Turkish of Turkey"
+        ]
+      }
+    ],
+    "orig": {
+      "triples": [
+        [
+          "Q1353906",
+          "P175",
+          "Q1299"
+        ],
+        [
+          "Q1299",
+          "P1037",
+          "Q203690"
+        ],
+        [
+          "Q203690",
+          "P27",
+          "Q145"
+        ],
+        [
+          "Q145",
+          "P37",
+          "Q1860"
+        ]
+      ],
+      "triples_labeled": [
+        [
+          "Lady Madonna",
+          "performer",
+          "The Beatles"
+        ],
+        [
+          "The Beatles",
+          "director / manager",
+          "Brian Epstein"
+        ],
+        [
+          "Brian Epstein",
+          "country of citizenship",
+          "United Kingdom"
+        ],
+        [
+          "United Kingdom",
+          "official language",
+          "English"
+        ]
+      ],
+      "new_triples": [
+        [
+          "Q1353906",
+          "P175",
+          "Q1744"
+        ],
+        [
+          "Q1744",
+          "P1037",
+          "Q55171"
+        ],
+        [
+          "Q55171",
+          "P27",
+          "Q222"
+        ],
+        [
+          "Q222",
+          "P37",
+          "Q256"
+        ]
+      ],
+      "new_triples_labeled": [
+        [
+          "Lady Madonna",
+          "performer",
+          "Madonna"
+        ],
+        [
+          "Madonna",
+          "director / manager",
+          "Pedro Almod\u00f3var"
+        ],
+        [
+          "Pedro Almod\u00f3var",
+          "country of citizenship",
+          "Albania"
+        ],
+        [
+          "Albania",
+          "official language",
+          "Turkish"
+        ]
+      ],
+      "edit_triples": [
+        [
+          "Q1353906",
+          "P175",
+          "Q1744"
+        ],
+        [
+          "Q1744",
+          "P1037",
+          "Q55171"
+        ],
+        [
+          "Q55171",
+          "P27",
+          "Q222"
+        ],
+        [
+          "Q222",
+          "P37",
+          "Q256"
+        ]
+      ]
+    }
+  },
+  {
+    "case_id": 2998,
+    "requested_rewrite": [
+      {
+        "prompt": "{} is a citizen of",
+        "relation_id": "P27",
+        "target_new": {
+          "str": "France",
+          "id": "Q142"
+        },
+        "target_true": {
+          "str": "United States of America",
+          "id": "Q30"
+        },
+        "subject": "Brigham Young",
+        "question": "What is the country of citizenship of Brigham Young?"
+      },
+      {
+        "prompt": "The capital of {} is",
+        "relation_id": "P36",
+        "target_new": {
+          "str": "Palermo",
+          "id": "Q2656"
+        },
+        "target_true": {
+          "str": "Paris",
+          "id": "Q90"
+        },
+        "subject": "France",
+        "question": "What is the capital of France?"
+      }
+    ],
+    "questions": [
+      "What is the capital of the country whose citizenship Andrew Bogut holds?",
+      "In which city is the capital of the country of citizenship of the person who founded the institution where Andrew Bogut was educated?",
+      "What is the name of the capital city of the country where the founder of the institution where Andrew Bogut was educated holds the citizenship?"
+    ],
+    "answer": "Washington, D.C.",
+    "answer_alias": [
+      "Washington",
+      "The District",
+      "D.C.",
+      "DC",
+      "District of Columbia",
+      "Washington D.C.",
+      "Washington, DC",
+      "US-DC",
+      "Washington DC",
+      "Washington, D.C., U.S.",
+      "Washington, District of Columbia"
+    ],
+    "new_answer": "Palermo",
+    "new_answer_alias": [
+      "Palermo, Italy"
+    ],
+    "single_hops": [
+      {
+        "question": "Which university was Andrew Bogut educated at?",
+        "cloze": "The univeristy where Andrew Bogut was educated is",
+        "answer": "University of Utah",
+        "answer_alias": [
+          "The U",
+          "UU",
+          "Deseret University",
+          "The University of Utah",
+          "U. of U.",
+          "University of Deseret",
+          "University of the State of Deseret",
+          "Utah University"
+        ]
+      },
+      {
+        "question": "Who founded University of Utah?",
+        "cloze": "University of Utah was founded by",
+        "answer": "Brigham Young",
+        "answer_alias": [
+          "President B. Young",
+          "President Brigham Young"
+        ]
+      },
+      {
+        "question": "What is the country of citizenship of Brigham Young?",
+        "cloze": "Brigham Young is a citizen of",
+        "answer": "United States of America",
+        "answer_alias": [
+          "the States",
+          "the U.S.",
+          "the United States",
+          "the United States of America",
+          "the US",
+          "the USA",
+          "U. S.",
+          "U. S. A.",
+          "U.S.",
+          "U.S.A.",
+          "US of A",
+          "USA",
+          "America",
+          "United States",
+          "US",
+          "the U.S. of A",
+          "the U.S. of America",
+          "the U.S.A.",
+          "the US of A",
+          "the US of America",
+          "U.S. of America",
+          "US of America"
+        ]
+      },
+      {
+        "question": "What is the capital of United States of America?",
+        "cloze": "The capital of United States of America is",
+        "answer": "Washington, D.C.",
+        "answer_alias": [
+          "Washington",
+          "The District",
+          "D.C.",
+          "DC",
+          "District of Columbia",
+          "Washington D.C.",
+          "Washington, DC",
+          "US-DC",
+          "Washington DC",
+          "Washington, D.C., U.S.",
+          "Washington, District of Columbia"
+        ]
+      }
+    ],
+    "new_single_hops": [
+      {
+        "question": "Which university was Andrew Bogut educated at?",
+        "cloze": "The univeristy where Andrew Bogut was educated is",
+        "answer": "University of Utah",
+        "answer_alias": [
+          "The U",
+          "UU",
+          "Deseret University",
+          "The University of Utah",
+          "U. of U.",
+          "University of Deseret",
+          "University of the State of Deseret",
+          "Utah University"
+        ]
+      },
+      {
+        "question": "Who founded University of Utah?",
+        "cloze": "University of Utah was founded by",
+        "answer": "Brigham Young",
+        "answer_alias": [
+          "President B. Young",
+          "President Brigham Young"
+        ]
+      },
+      {
+        "question": "What is the country of citizenship of Brigham Young?",
+        "cloze": "Brigham Young is a citizen of",
+        "answer": "France",
+        "answer_alias": [
+          "Republic of France",
+          "R\u00e9publique fran\u00e7aise",
+          "the Hexagon",
+          "La France",
+          "French Republic",
+          "FRA",
+          "fr",
+          "FR"
+        ]
+      },
+      {
+        "question": "What is the capital of France?",
+        "cloze": "The capital of France is",
+        "answer": "Palermo",
+        "answer_alias": [
+          "Palermo, Italy"
+        ]
+      }
+    ],
+    "orig": {
+      "triples": [
+        [
+          "Q311546",
+          "P69",
+          "Q168515"
+        ],
+        [
+          "Q168515",
+          "P112",
+          "Q203559"
+        ],
+        [
+          "Q203559",
+          "P27",
+          "Q30"
+        ],
+        [
+          "Q30",
+          "P36",
+          "Q61"
+        ]
+      ],
+      "triples_labeled": [
+        [
+          "Andrew Bogut",
+          "educated at",
+          "University of Utah"
+        ],
+        [
+          "University of Utah",
+          "founded by",
+          "Brigham Young"
+        ],
+        [
+          "Brigham Young",
+          "country of citizenship",
+          "United States of America"
+        ],
+        [
+          "United States of America",
+          "capital",
+          "Washington, D.C."
+        ]
+      ],
+      "new_triples": [
+        [
+          "Q311546",
+          "P69",
+          "Q168515"
+        ],
+        [
+          "Q168515",
+          "P112",
+          "Q203559"
+        ],
+        [
+          "Q203559",
+          "P27",
+          "Q142"
+        ],
+        [
+          "Q142",
+          "P36",
+          "Q2656"
+        ]
+      ],
+      "new_triples_labeled": [
+        [
+          "Andrew Bogut",
+          "educated at",
+          "University of Utah"
+        ],
+        [
+          "University of Utah",
+          "founded by",
+          "Brigham Young"
+        ],
+        [
+          "Brigham Young",
+          "country of citizenship",
+          "France"
+        ],
+        [
+          "France",
+          "capital",
+          "Palermo"
+        ]
+      ],
+      "edit_triples": [
+        [
+          "Q203559",
+          "P27",
+          "Q142"
+        ],
+        [
+          "Q142",
+          "P36",
+          "Q2656"
+        ]
+      ]
+    }
+  }
+]
