@@ -190,7 +190,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
     
     # embedding of facts in retrieve model:
-    embs = get_sent_embeddings(new_facts, contriever, tokenizer, device)
+    embs = get_sent_embeddings(new_facts, contriever, tokenizer)
     
     logger.info("Prepare works are Done!")
     evaluate_on_dataset_full_functionality(dataset=dataset,
