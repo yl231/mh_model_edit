@@ -233,7 +233,6 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
     subquestion = 'Subquestion: '
     
     for d in tqdm(dataset[S:T]):
-        # for d in tqdm(dataset[0:4]):
         tot += 1
         for q in d["questions"]:
             found_ans = False
@@ -315,7 +314,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                     prompt = prompt + '\n' + "Retrieved fact %s contradict to generated answer, " \
                                              "so the intermediate answer is: %s" % (do_not, res)
                     # print(prompt[len(task_prompt):])
-                    # print("-" * 50)
+                    # print("-" * 50)ga_contradict_fc2
                     llm_answer = res
                 elif subquestion_breakdown:
                     gen = call_model(prompt, sc_subq, model, gptj_tokenizer, device)[4:]
@@ -336,7 +335,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                 if quit:
                     found_ans = True
                     break
-            
+            logger.info(prompt)
             if not found_ans:
                 continue
             # if the answer is correct
