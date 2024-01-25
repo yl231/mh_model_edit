@@ -336,6 +336,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                     found_ans = True
                     break
             logger.info(prompt + "\n")
+            print(prompt + "\n")
             if not found_ans:
                 continue
             # if the answer is correct
