@@ -14,15 +14,15 @@ export TRANSFORMERS_CACHE=/mnt/vstor/CSE_CSDS_VXC204/sxz517/
 export HF_HOME=/mnt/vstor/CSE_CSDS_VXC204/sxz517/
 export HUGGINGFACE_HUB_CACHE=/mnt/vstor/CSE_CSDS_VXC204/sxz517/
 
-CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/model_edit_main.py \
+CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/model_edit_main.py \
 --model_name vicuna-7b \
 --device cuda \
---file_path /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/ \
+--file_path /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/ \
 --seed 100 \
 --subquestion_breakdown True \
 --cot_contradiction True \
 --fact_query_on subquestion \
---output_dir /mnt/rstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/output/ \
+--output_dir /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/output/ \
 --delete_duplicate_output_file True \
---start 0 \
+--start 2000 \
 --end 3000
