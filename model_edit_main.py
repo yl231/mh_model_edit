@@ -97,6 +97,7 @@ def main():
     parser.add_argument('--fact_query_on', type=str, default="subquestion", help='')
     parser.add_argument('--edit_num', type=int, default=1000, help='number of questions to edit')
     parser.add_argument('--holistic_cot', type=bool, default=False, help='holistic COT')
+    parser.add_argument('--print_prompt', type=bool, default=False, help='print the prompt for debug')
     
     # parser.add_argument()
     
@@ -120,6 +121,7 @@ def main():
                                            str(cot_contradiction)[0],
                                            start, end)
     delete_duplicate_output_file = args.delete_duplicate_output_file
+    print_prompt = args.print_prompt
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
@@ -215,7 +217,8 @@ def main():
                                            tokenizer=tokenizer,
                                            cot_prompt=cot_prompt3,
                                            fact_query_on=fact_query_on,
-                                           holistic_cot=holistic_cot
+                                           holistic_cot=holistic_cot,
+                                           print_prompt=print_prompt
                                            )
 
 
@@ -224,7 +227,7 @@ def main():
 def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, caseid_to_qa_pair, caseid_to_sub_questions,
                                            embs, fact_retrieve, subquestion_breakdown, cot_contradiction, sc_fact,
                                            sc_subq, sc_contra, rand_list, model, gptj_tokenizer, device, contriever,
-                                           tokenizer, cot_prompt, fact_query_on, holistic_cot,
+                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt,
                                            S=0, T=200):
     # Run MeLLo on the first T (T=200) examples
     
@@ -335,8 +338,8 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                 if quit:
                     found_ans = True
                     break
-            logger.info(prompt + "\n")
-            print(prompt + "\n")
+            if print_prompt:
+                logger.info(prompt[len(task_prompt):] + "\n")
             if not found_ans:
                 continue
             # if the answer is correct
