@@ -243,7 +243,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
             num_single_hops = (d['case_id'] - 1) // 1000 + 2
             llm_answer = None
             ans = None
-            for i in range(4):  # max of 4 hops
+            for i in range(4 + int(subquestion_breakdown)):  # max of 4 hops
                 if subquestion_breakdown:
                     if i < num_single_hops:
                         subq = get_next_sub_question(d['case_id'] - 1, i, subquestion, caseid_to_sub_questions)
