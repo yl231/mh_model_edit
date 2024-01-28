@@ -7,6 +7,8 @@ def call_model(prompt, stop, model, gptj_tokenizer, device, generate_length=150)
         stopping_criteria=stop,
     )
     gen_text = gptj_tokenizer.batch_decode(gen_tokens)[0]
+    gen_text = gen_text.replace(gptj_tokenizer.eos_token, '')
+    
     del input_ids, gen_tokens
     return gen_text
 
