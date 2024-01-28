@@ -332,6 +332,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                 
                 quit, ans = able_to_quit(prompt, task_prompt)
                 if quit:
+                    logger.info("I quit at the end -------------------------------")
                     found_ans = True
                     break
             if print_prompt:
