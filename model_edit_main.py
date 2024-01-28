@@ -256,6 +256,143 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                         break
                 # prompt the model to generate a subquestion and a tentative answer
                 
+                prompt = call_model(prompt, sc_fact, model, gptj_tokenizer, device)
+                if prompt.strip().split('\n')[-1] == 'Retrieved fact:':
+                    prompt = prompt[:-len('\nRetrieved fact:')]
+                prompt = remove_extra_target_occurrences(prompt, "Question: ", 5)[4:]
+                # print(gen[len(task_prompt):])
+                # print("-" * 50)
+                # if final answer is there, get the answer and exit
+                quit, ans = able_to_quit(prompt, task_prompt)
+                if quit:
+                    found_ans = True
+                    break
+                
+                # otherwise, extract the generated subquestion
+                temp_split = prompt.strip().split('\n')
+                if len(temp_split) < 2:
+                    break  # failed case
+                subquestion = temp_split[-2]
+                
+                if not subquestion.startswith('Subquestion: '):
+                    break  # failed case
+                
+                generated_answer = temp_split[-1]
+                query_phrase = subquestion
+                if fact_query_on == "generated_answer_formatted":
+                    if not temp_split[-1].startswith("Generated answer: "):
+                        break
+                    # Genertaed answer: XX is {}. YY
+                    ga_seg = generated_answer[len("Generated answer: "):].strip().split('. ')
+                    
+                    if len(ga_seg) == 2:
+                        query_phrase = ga_seg[0]
+                        answer_object = ga_seg[1]
+                
+                # True if we want to use hard-code facts retrieval
+                if fact_retrieve:
+                    fact_sent, _ = hard_retrieve_facts(i, d["case_id"] - 1, query_phrase, new_facts, caseid_to_qa_pair,
+                                                       embs, contriever, tokenizer)
+                else:
+                    fact_ids = retrieve_facts(query_phrase, embs, contriever, tokenizer)
+                    fact_sent = new_facts[fact_ids[0]]
+                
+                # put the retrieved fact at the end of the prompt, the model self-checks if it contradicts
+                prompt = prompt + '\nRetrieved fact: ' + fact_sent
+                if cot_contradiction and holistic_cot:
+                    prompt += "\nNow, let's think step by step, would there be a " \
+                              "contradiction in the generated answer to the " \
+                              "nearest subquestion given the retrieved fact? "
+                
+                if i >= num_single_hops:
+                    continue
+                
+                if cot_contradiction:
+                    yes_or_no, res = ga_contradict_fc2(subquestion, generated_answer, fact_sent, cot_prompt, sc_contra,
+                                                       model, gptj_tokenizer, device, task_prompt)
+                    if yes_or_no:
+                        do_not = "does"
+                    else:
+                        do_not = "does not"
+                    prompt = prompt + '\n' + "Retrieved fact %s contradict to generated answer, " \
+                                             "so the intermediate answer is: %s" % (do_not, res)
+                    # print(prompt[len(task_prompt):])
+                    # print("-" * 50)ga_contradict_fc2
+                    llm_answer = res
+                elif subquestion_breakdown:
+                    prompt = call_model(prompt, sc_subq, model, gptj_tokenizer, device)[4:]
+                    
+                    if prompt.strip().split('\n')[-1] == 'Subquestion:':
+                        prompt = prompt[:-len('\nSubquestion:')]
+                    
+                    # print(gen[len(task_prompt):])
+                    # print('-' * 100)
+                    
+                    llm_answer = prompt.strip().split('\n')[-1].split(": ")[-1]
+                    # print(last_answer)
+                else:
+                    continue
+                
+                quit, ans = able_to_quit(prompt, task_prompt)
+                if quit:
+                    found_ans = True
+                    break
+            if print_prompt:
+                logger.info(prompt[len(task_prompt):] + "\n")
+            if not found_ans:
+                continue
+            # if the answer is correct
+            # print(ans)
+            answer = "answer"
+            answer_alias = "answer_alias"
+            if (d["case_id"] - 1) in rand_list:
+                answer = "new_" + answer
+                answer_alias = "new_" + answer_alias
+            
+            # print(d[answer], d[answer_alias])
+            if ans == d[answer] or ans in d[answer_alias]:
+                cor += 1
+                break
+        logger.info("%s, %s" % (cor, tot))
+        # print("-" * 100)
+        print(cor, tot)
+        # print("-" * 100)
+    
+    print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
+
+
+def backup_evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, caseid_to_qa_pair, caseid_to_sub_questions,
+                                           embs, fact_retrieve, subquestion_breakdown, cot_contradiction, sc_fact,
+                                           sc_subq, sc_contra, rand_list, model, gptj_tokenizer, device, contriever,
+                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt,
+                                           S=0, T=200):
+    # Run MeLLo on the first T (T=200) examples
+    
+    cor = 0
+    tot = 0
+    subquestion = 'Subquestion: '
+    
+    for d in tqdm(dataset[S:T]):
+        tot += 1
+        for q in d["questions"]:
+            found_ans = False
+            prompt = task_prompt + "\n\nQuestion: " + q
+            num_single_hops = (d['case_id'] - 1) // 1000 + 2
+            llm_answer = None
+            ans = None
+            for i in range(4):  # max of 4 hops
+                if subquestion_breakdown:
+                    if i < num_single_hops:
+                        subq = get_next_sub_question(d['case_id'] - 1, i, subquestion, caseid_to_sub_questions)
+                        if i != 0:
+                            subq = subq.format(llm_answer)
+                        prompt = prompt + "\n" + "Subquestion: " + subq + "\nGenerated answer: "
+                    else:
+                        found_ans = True
+                        ans = llm_answer
+                        break
+                # prompt the model to generate a subquestion and a tentative answer
+                
                 gen = call_model(prompt, sc_fact, model, gptj_tokenizer, device)
                 if gen.strip().split('\n')[-1] == 'Retrieved fact:':
                     gen = gen[:-len('\nRetrieved fact:')]
@@ -360,7 +497,6 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
         # print("-" * 100)
     
     print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
-
 
 if __name__ == '__main__':
     main()
