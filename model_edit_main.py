@@ -250,8 +250,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                         if i != 0:
                             subq = subq.format(llm_answer)
                         prompt = prompt + "\n" + "Subquestion: " + subq + "\nGenerated answer: "
-                    else:
-                        continue
+                        
                 # prompt the model to generate a subquestion and a tentative answer
                 
                 prompt = call_model(prompt, sc_fact, model, gptj_tokenizer, device)
