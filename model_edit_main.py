@@ -55,6 +55,8 @@ def save_logger_setup(logger_to_save, file_path, delete_duplicate_output_file):
             os.remove(file_path)
         else:
             file_path = file_path.split('.txt')[0] + "(0).txt"
+    else:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
     
     file_handler = logging.FileHandler(file_path)
     
