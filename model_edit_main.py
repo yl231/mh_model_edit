@@ -98,7 +98,7 @@ def main():
     parser.add_argument('--edit_num', type=int, default=1000, help='number of questions to edit')
     parser.add_argument('--holistic_cot', type=bool, default=False, help='holistic COT')
     parser.add_argument('--print_prompt', type=bool, default=False, help='print the prompt for debug')
-    parser.add_argument('--dataset', type=str, default="-CF", help='default counterfactual')
+    parser.add_argument('--dataset', type=str, default="CF", help='default counterfactual')
     
     # parser.add_argument()
     
@@ -123,7 +123,7 @@ def main():
                                            start, end)
     delete_duplicate_output_file = args.delete_duplicate_output_file
     print_prompt = args.print_prompt
-    dataset_name = args.dataset
+    dataset_name = "-" + args.dataset
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
