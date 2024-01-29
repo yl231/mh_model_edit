@@ -2,6 +2,7 @@ import random
 from tqdm import tqdm
 import torch
 import json
+import os
 
 
 def mean_pooling(token_embeddings, mask):
@@ -23,31 +24,50 @@ def get_sent_embeddings(sents, contriever, tok, BSZ=32):
     return all_embs
 
 
-def process_datasets(dataset, file_path, seed_num=100, edit_num=1000):
+def process_datasets(dataset, file_path, seed_num=100, edit_num=1000, dataset_name='-CF'):
     random.seed(seed_num)
+    if dataset_name == '-CF':
+        instance_num = 3000
+    elif dataset_name == '-T':
+        instance_num = 1868
+    else:
+        raise ValueError(f"Cannot find instance_num for dataset {dataset_name}")
     
     new_facts = set()
     caseid_to_sub_questions = {}
     
-    caseid_to_qa_pair_path = f"{file_path}/datasets/hard_code_facts/caseid_to_qa_pair_{edit_num}.json"
-    with open(caseid_to_qa_pair_path, 'r', encoding='utf-8') as f:
-        caseid_to_qa_pair = json.load(f)
+    rand_list_path = f"{file_path}/datasets/hard_code_facts/rand_list_{edit_num}_{seed_num}_{dataset_name}.json"
+    if os.path.isfile(rand_list_path):
+        with open(rand_list_path, 'r', encoding='utf-8') as f:
+            rand_list = json.load(f)
+    else:
+        rand_list = random.sample(range(instance_num), edit_num)
+
+    get_caseid2qa_pair = False
+    caseid_to_qa_pair = {}
+    caseid_to_qa_pair_path = f"{file_path}/datasets/hard_code_facts/caseid_to_qa_pair_{edit_num}_{seed_num}_{dataset_name}.json"
+    if os.path.isfile(caseid_to_qa_pair_path):
+        with open(caseid_to_qa_pair_path, 'r', encoding='utf-8') as f:
+            caseid_to_qa_pair = json.load(f)
+    else:
+        get_caseid2qa_pair = True
         
-    rand_list_path = f"{file_path}/datasets/hard_code_facts/rand_list_{edit_num}.json"
-    with open(rand_list_path, 'r', encoding='utf-8') as f:
-        rand_list = json.load(f)
+
+        
     for n in rand_list:
         d = dataset[n]
-        # caseid_to_qa_pair[n] = {}
+        if get_caseid2qa_pair:
+            caseid_to_qa_pair[n] = {}
         idx = 0
         for r in d["requested_rewrite"]:
             the_fact = f'{r["prompt"].format(r["subject"])} {r["target_new"]["str"]}'
             new_facts.add(the_fact)
-            # caseid_to_qa_pair[n][idx] = (r["question"], the_fact, r["target_new"]["str"])
+            if get_caseid2qa_pair:
+                caseid_to_qa_pair[n][idx] = (r["question"], the_fact, r["target_new"]["str"])
             idx += 1
     
     rand_set = set(rand_list)
-    for i in range(3000):
+    for i in range(instance_num):
         caseid_to_sub_questions[i] = {}
         single_hops = "single_hops"
         if i in rand_set:
@@ -61,5 +81,9 @@ def process_datasets(dataset, file_path, seed_num=100, edit_num=1000):
             last_answer = hop['answer']
     
     new_facts = list(new_facts)
+    
+    if caseid_to_qa_pair:
+        with open(caseid_to_qa_pair_path, 'w') as file:
+            json.dump(caseid_to_qa_pair, file, indent=4)
     
     return new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list

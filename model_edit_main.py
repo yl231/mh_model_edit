@@ -98,6 +98,7 @@ def main():
     parser.add_argument('--edit_num', type=int, default=1000, help='number of questions to edit')
     parser.add_argument('--holistic_cot', type=bool, default=False, help='holistic COT')
     parser.add_argument('--print_prompt', type=bool, default=False, help='print the prompt for debug')
+    parser.add_argument('--dataset', type=str, default="-CF", help='default counterfactual')
     
     # parser.add_argument()
     
@@ -122,6 +123,7 @@ def main():
                                            start, end)
     delete_duplicate_output_file = args.delete_duplicate_output_file
     print_prompt = args.print_prompt
+    dataset_name = args.dataset
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
@@ -178,14 +180,20 @@ def main():
     
     with open(file_path + 'prompts/TaskPromptEdit_hs.txt', 'r', encoding='utf-8') as f:
         cot_prompt3 = f.read()
-    with open(file_path + 'datasets/MQuAKE-CF-3k.json', 'r') as f:
+
+    dataset_path = "MQuAKE-CF-3k"
+    if dataset_name == '-T':
+        dataset_path = "MQuAKE-T"
+    with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
         dataset = json.load(f)
+        
     logger.info("Files are read and ready to be used!")
     
     # caseid_to_qa_pair is for fact-retrieval, caseid_to_sub_questions is for subq breakdown.
     new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list = process_datasets(dataset, file_path,
                                                                                         seed_num=seed_num,
-                                                                                        edit_num=edit_num)
+                                                                                        edit_num=edit_num,
+                                                                                        dataset_name=dataset_name)
     
     # retrieve model:
     contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
