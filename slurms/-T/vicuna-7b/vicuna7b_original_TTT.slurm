@@ -25,7 +25,7 @@ CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/co
 --fact_query_on subquestion \
 --output_dir /mnt/rstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/output/ \
 --delete_duplicate_output_file True \
+--dataset -T \
 --start 0 \
 --end 3000 \
---edit_num 1000 \
---dataset -T
+--edit_num 1000
