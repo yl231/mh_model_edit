@@ -4,6 +4,7 @@ import random
 from tqdm import tqdm
 import json
 import torch
+import re
 
 with open('prompts/MeLLo-prompt.txt', 'r', encoding='utf-8') as f:
     task_prompt = f.read()
@@ -206,10 +207,26 @@ for d in tqdm(dataset[S:T]):
             answer = "new_" + answer
             answer_alias = "new_" + answer_alias
         # print(d[answer], d[answer_alias])
-        if ans == d[answer] or ans in d[answer_alias] or (
-                (d["case_id"] - 1) not in rand_list and ans in d["answer_extended"]):
+
+        simple_ground_ans = re.sub(r"[^a-zA-Z ]+", '', d[answer]).lower()
+        simple_ans = re.sub(r"[^a-zA-Z ]+", '', ans).lower()
+        if simple_ground_ans in simple_ans:
             cor += 1
             break
+        else:
+            break_flag = False
+            for alias in d[answer_alias]:
+                simple_alias = re.sub(r"[^a-zA-Z ]+", '', alias).lower()
+                if simple_alias in simple_ans:
+                    cor += 1
+                    break_flag = True
+                    break
+            if break_flag:
+                break
+        # if ans == d[answer] or ans in d[answer_alias] or (
+        #         (d["case_id"] - 1) not in rand_list and ans in d["answer_extended"]):
+        #     cor += 1
+        #     break
     print(cor, tot)
 
 print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
