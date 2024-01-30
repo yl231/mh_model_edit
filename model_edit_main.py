@@ -358,7 +358,8 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                 answer_alias = "new_" + answer_alias
             
             # print(d[answer], d[answer_alias])
-            if ans == d[answer] or ans in d[answer_alias]:
+            if ans == d[answer] or ans in d[answer_alias] or \
+                    (d["case_id"] - 1) not in rand_list and ans in d["answer_extended"]:
                 cor += 1
                 break
         logger.info("%s, %s" % (cor, tot))
