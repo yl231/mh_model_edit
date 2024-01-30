@@ -24,5 +24,5 @@ CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/co
 --delete_duplicate_output_file True \
 --dataset T \
 --start 0 \
---end 3000 \
+--end 1868 \
 --edit_num 500
