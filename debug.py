@@ -115,8 +115,8 @@ random.seed(100)
 
 new_facts = set()
 # 3000 1868
-rand_list = random.sample(range(1868), 500)
-# rand_list = [299]
+# rand_list = random.sample(range(1868), 1)
+rand_list = [299]
 # print(1 in rand_list)
 
 
@@ -133,7 +133,7 @@ embs = get_sent_embeddings(new_facts, contriever, tokenizer)
 
 # Run MeLLo on the first T (T=10) examples
 S = 0
-T = 50
+T = 200
 
 cor = 0
 tot = 0
