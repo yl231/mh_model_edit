@@ -228,7 +228,8 @@ def main():
                                            cot_prompt=cot_prompt3,
                                            fact_query_on=fact_query_on,
                                            holistic_cot=holistic_cot,
-                                           print_prompt=print_prompt
+                                           print_prompt=print_prompt,
+                                           dataset_name=dataset_name
                                            )
 
 
@@ -237,7 +238,7 @@ def main():
 def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, caseid_to_qa_pair, caseid_to_sub_questions,
                                            embs, fact_retrieve, subquestion_breakdown, cot_contradiction, sc_fact,
                                            sc_subq, sc_contra, rand_list, model, gptj_tokenizer, device, contriever,
-                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt,
+                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt, dataset_name,
                                            S=0, T=200):
     # Run MeLLo on the first T (T=200) examples
     
@@ -359,7 +360,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
             
             # print(d[answer], d[answer_alias])
             if ans == d[answer] or ans in d[answer_alias] or \
-                    (d["case_id"] - 1) not in rand_list and ans in d["answer_extended"]:
+                    (dataset_name == '-CF' and d["case_id"] - 1) not in rand_list and ans in d["answer_extended"]:
                 cor += 1
                 break
         logger.info("%s, %s" % (cor, tot))
