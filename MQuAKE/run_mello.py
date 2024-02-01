@@ -12,20 +12,41 @@ from transformers import AutoTokenizer, AutoModel
 
 # %%
 
-import openai
-
-openai.api_key = os.getenv("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")
+from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 
 
-def call_gpt(cur_prompt, stop):
-    ans = openai.Completion.create(
-        model="gpt-3.5-turbo-instruct",
-        max_tokens=512,
-        stop=stop,
-        prompt=cur_prompt,
-        temperature=0)
-    returned = ans['choices'][0]['text']
-    return returned
+device = "cuda"
+gptj_tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3")
+model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-7b-v1.3").to(device)
+
+
+def call_model(prompt, stop, generate_length=150):
+    input_ids = gptj_tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+    gen_tokens = model.generate(
+        input_ids,
+        do_sample=True,
+        max_length=len(input_ids[0]) + generate_length,
+        stopping_criteria=stop,
+    )
+    gen_text = gptj_tokenizer.batch_decode(gen_tokens)[0]
+    del input_ids, gen_tokens
+    return gen_text
+
+
+def remove_extra_target_occurrences(gen, target, count):
+    occurrences = gen.count(target)
+    
+    if occurrences <= count:
+        return gen
+    
+    index = 0
+    for _ in range(count + 1):
+        index = gen.find(target, index) + len(target)
+    
+    # while index < len(gen) and gen[index:].startswith(target):
+    #     index += len(target)
+    
+    return gen[:index - len(target) - 2]
 
 
 # %% md
