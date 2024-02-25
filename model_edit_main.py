@@ -454,7 +454,7 @@ def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_toke
                     found_ans = True
                     index = prompt.find('Final answer: ', len(task_prompt))
                     final_ans = prompt[index:]
-                    final_ans = ans.strip().split('\n')[0][len('Final answer: '):]
+                    final_ans = final_ans.strip().split('\n')[0][len('Final answer: '):]
                     if final_ans == ans:
                         ans = final_ans
                     break
