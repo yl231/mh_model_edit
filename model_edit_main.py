@@ -105,7 +105,8 @@ def main():
     parser.add_argument('--print_prompt', type=bool, default=False, help='print the prompt for debug')
     parser.add_argument('--dataset', type=str, default="CF", help='default counterfactual')
     parser.add_argument('--kg_walk', type=bool, default=False, help="whether to use kg_walk")
-    
+    parser.add_argument('--hops', type=int, default=4, help="number of hops")
+
     # parser.add_argument()
     
     # parse arguments from
@@ -131,6 +132,7 @@ def main():
     print_prompt = args.print_prompt
     dataset_name = "-" + args.dataset
     kg_walk = args.kg_walk
+    hops=args.hops
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
@@ -276,6 +278,7 @@ def main():
                                     ents=ents,
                                     rand_list=rand_list,
                                     print_prompt=print_prompt,
+                                    hops=hops,
                                     S=start,
                                     T=end)
         
@@ -423,7 +426,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
     
 def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_tokenizer, device, rels, rel_emb,
                                 contriever, tokenizer, entity2id, ent2alias, rel2id, kg_s_r_o, id2entity, ent_emb, ents,
-                                rand_list, print_prompt, S=0, T=200):
+                                rand_list, print_prompt, hops, S=0, T=200):
     cor = 0
     tot = 0
     
@@ -438,7 +441,7 @@ def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_toke
             ans = None
             subject = get_subject(d)
             prompt = task_prompt + "\n\nQuestion: " + q
-            for i in range(4):
+            for i in range(hops):
                 prompt = call_model(prompt, sc_facts, model, gptj_tokenizer, device)
                 if prompt.strip().split('\n')[-1] == 'Retrieved fact:':
                     prompt = prompt[:-len('\nRetrieved fact:')]
@@ -522,9 +525,9 @@ def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_toke
             if ans == d[answer] or ans in d[answer_alias]:
                 cor += 1
                 break
-        print(cor, tot)
+        logger.info("%s, %s" % (cor, tot))
     
-    print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
+    logger.info(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
 
 
 def backup_evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, caseid_to_qa_pair, caseid_to_sub_questions,
