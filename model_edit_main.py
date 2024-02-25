@@ -12,8 +12,11 @@ import atexit
 from transformers import StoppingCriteria, StoppingCriteriaList
 
 from helper_run_model import remove_extra_target_occurrences, call_model, able_to_quit, ga_contradict_fc2
-from helper_process_dataset import get_sent_embeddings, process_datasets
+from helper_process_dataset import get_sent_embeddings, process_datasets, get_ent_rel_id, process_kg, get_subject, \
+    get_ent_alias
 from helper_fact_subq_contra import retrieve_facts, hard_retrieve_facts, get_next_sub_question
+from kg_utils import get_relation, get_fact_form_kg, fit_subject_on_kg
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -101,6 +104,7 @@ def main():
     parser.add_argument('--holistic_cot', type=bool, default=False, help='holistic COT')
     parser.add_argument('--print_prompt', type=bool, default=False, help='print the prompt for debug')
     parser.add_argument('--dataset', type=str, default="CF", help='default counterfactual')
+    parser.add_argument('--kg_walk', type=bool, default=False, help="whether to use kg_walk")
     
     # parser.add_argument()
     
@@ -126,6 +130,7 @@ def main():
     delete_duplicate_output_file = args.delete_duplicate_output_file
     print_prompt = args.print_prompt
     dataset_name = "-" + args.dataset
+    kg_walk = args.kg_walk
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
@@ -161,76 +166,99 @@ def main():
         sc_contra = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
     
     else:
-        model = None
-        gptj_tokenizer = None
-        sc_facts = None
-        sc_subq = None
-        sc_contra = None
-        logger.warning("Warning: Model <%s> doesn't exist!" % model_name)
+        raise ValueError("Model <%s> not implemented yet." % model_name)
     
-    if fact_query_on == "generated_answer_formatted":
-        with open(file_path + 'prompts/fill_out_generated_answer.txt', 'r', encoding='utf-8') as f:
-            task_prompt = f.read()
-    elif holistic_cot and cot_contradiction:
-        # with open(file_path + 'prompts/MeLLo-prompt.txt', 'r', encoding='utf-8') as f:
-        with open(file_path + 'prompts/Mello_holistic_prompt.txt', 'r', encoding='utf-8') as f:
-            task_prompt = f.read()
-    else:
-        with open(file_path + 'prompts/MeLLo-prompt.txt', 'r', encoding='utf-8') as f:
-            # with open(file_path + 'prompts/Mello_holistic_prompt.txt', 'r', encoding='utf-8') as f:
-            task_prompt = f.read()
-    
-    with open(file_path + 'prompts/TaskPromptEdit_hs.txt', 'r', encoding='utf-8') as f:
-        cot_prompt3 = f.read()
-
-    dataset_path = "MQuAKE-CF-3k"
-    if dataset_name == '-T':
-        dataset_path = "MQuAKE-T"
-    with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
-        dataset = json.load(f)
+    if not kg_walk:
+        if fact_query_on == "generated_answer_formatted":
+            with open(file_path + 'prompts/fill_out_generated_answer.txt', 'r', encoding='utf-8') as f:
+                task_prompt = f.read()
+        elif holistic_cot and cot_contradiction:
+            # with open(file_path + 'prompts/MeLLo-prompt.txt', 'r', encoding='utf-8') as f:
+            with open(file_path + 'prompts/Mello_holistic_prompt.txt', 'r', encoding='utf-8') as f:
+                task_prompt = f.read()
+        else:
+            with open(file_path + 'prompts/MeLLo-prompt.txt', 'r', encoding='utf-8') as f:
+                # with open(file_path + 'prompts/Mello_holistic_prompt.txt', 'r', encoding='utf-8') as f:
+                task_prompt = f.read()
         
-    logger.info("Files are read and ready to be used!")
+        with open(file_path + 'prompts/TaskPromptEdit_hs.txt', 'r', encoding='utf-8') as f:
+            cot_prompt3 = f.read()
     
-    # caseid_to_qa_pair is for fact-retrieval, caseid_to_sub_questions is for subq breakdown.
-    new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list = process_datasets(dataset, file_path,
-                                                                                        seed_num=seed_num,
-                                                                                        edit_num=edit_num,
-                                                                                        dataset_name=dataset_name)
-    
-    # retrieve model:
-    contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
-    tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
-    
-    # embedding of facts in retrieve model:
-    embs = get_sent_embeddings(new_facts, contriever, tokenizer)
+        dataset_path = "MQuAKE-CF-3k"
+        if dataset_name == '-T':
+            dataset_path = "MQuAKE-T"
+        with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
+            dataset = json.load(f)
+
+        # caseid_to_qa_pair is for fact-retrieval, caseid_to_sub_questions is for subq breakdown.
+        new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list = process_datasets(dataset, file_path,
+                                                                                            seed_num=seed_num,
+                                                                                            edit_num=edit_num,
+                                                                                            dataset_name=dataset_name)
+        
+        # retrieve model:
+        contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
+        tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
+        
+        # embedding of facts in retrieve model:
+        embs = get_sent_embeddings(new_facts, contriever, tokenizer)
+            
+    else:  # to use kg walk
+        with open(file_path + 'prompts/fill_out_ga_w_blank2.txt', 'r', encoding='utf-8') as f:
+            task_prompt = f.read()
+        dataset_path = "MQuAKE-CF-3k-idMatched"
+        with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
+            dataset = json.load(f)
+        instance_num = 3000  # currently only for -CF.
+        rand_list = random.sample(range(instance_num), edit_num)
+
+        entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
+        edit_kg, kg_s_r_o = process_kg(dataset, rand_list)
+        ent2alias, alias2id = get_ent_alias(dataset, rand_list, entity2id)
+
+        # retrieve model:
+        contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
+        tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
+
+        rels = list(rel2id.keys())
+        rel_emb = get_sent_embeddings(rels, contriever, tokenizer)
+
+        ents = list(entity2id.keys())
+        ent_emb = get_sent_embeddings(ents, contriever, tokenizer)
+        
+        
+        
     
     logger.info("Prepare works are Done!")
-    evaluate_on_dataset_full_functionality(dataset=dataset,
-                                           task_prompt=task_prompt,
-                                           new_facts=new_facts,
-                                           caseid_to_qa_pair=caseid_to_qa_pair,
-                                           caseid_to_sub_questions=caseid_to_sub_questions,
-                                           embs=embs,
-                                           fact_retrieve=fact_retrieve,
-                                           subquestion_breakdown=subquestion_breakdown,
-                                           cot_contradiction=cot_contradiction,
-                                           sc_fact=sc_facts,
-                                           sc_subq=sc_subq,
-                                           sc_contra=sc_contra,
-                                           rand_list=rand_list,
-                                           model=model,
-                                           gptj_tokenizer=gptj_tokenizer,
-                                           device=device,
-                                           S=start,
-                                           T=end,
-                                           contriever=contriever,
-                                           tokenizer=tokenizer,
-                                           cot_prompt=cot_prompt3,
-                                           fact_query_on=fact_query_on,
-                                           holistic_cot=holistic_cot,
-                                           print_prompt=print_prompt,
-                                           dataset_name=dataset_name
-                                           )
+    if kg_walk:
+        return 0
+    else:
+        evaluate_on_dataset_full_functionality(dataset=dataset,
+                                               task_prompt=task_prompt,
+                                               new_facts=new_facts,
+                                               caseid_to_qa_pair=caseid_to_qa_pair,
+                                               caseid_to_sub_questions=caseid_to_sub_questions,
+                                               embs=embs,
+                                               fact_retrieve=fact_retrieve,
+                                               subquestion_breakdown=subquestion_breakdown,
+                                               cot_contradiction=cot_contradiction,
+                                               sc_fact=sc_facts,
+                                               sc_subq=sc_subq,
+                                               sc_contra=sc_contra,
+                                               rand_list=rand_list,
+                                               model=model,
+                                               gptj_tokenizer=gptj_tokenizer,
+                                               device=device,
+                                               S=start,
+                                               T=end,
+                                               contriever=contriever,
+                                               tokenizer=tokenizer,
+                                               cot_prompt=cot_prompt3,
+                                               fact_query_on=fact_query_on,
+                                               holistic_cot=holistic_cot,
+                                               print_prompt=print_prompt,
+                                               dataset_name=dataset_name
+                                               )
 
 
 # the full function to complete later:
@@ -367,6 +395,112 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
         # print("-" * 100)
         print(cor, tot)
         # print("-" * 100)
+    
+    print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
+    
+    
+def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_tokenizer, device, rels, rel_emb,
+                                contriever, tokenizer, entity2id, ent2alias, rel2id, kg_s_r_o, id2entity, ent_emb, ents,
+                                rand_list, print_prompt, S=0, T=200):
+    cor = 0
+    tot = 0
+    
+    for d in tqdm(dataset[S:T]):
+        if print_prompt:
+            print("=" * 50, f"Caseid = {d['case_id']}", "=" * 50)
+        tot += 1
+        for q_id, q in enumerate(d["questions"]):
+            if print_prompt:
+                print("=" * 30, f"q_id = {q_id + 1}", "=" * 30)
+            found_ans = False
+            ans = None
+            subject = get_subject(d)
+            prompt = task_prompt + "\n\nQuestion: " + q
+            for i in range(4):
+                prompt = call_model(prompt, sc_facts, model, gptj_tokenizer, device)
+                if prompt.strip().split('\n')[-1] == 'Retrieved fact:':
+                    prompt = prompt[:-len('\nRetrieved fact:')]
+                prompt = remove_extra_target_occurrences(prompt, "Question: ", 5)[4:]
+                # print(gen[len(task_prompt):])
+                # print("-" * 50)
+                
+                # if final answer is there, get the answer and exit
+                if prompt.count('Final answer: ') >= 5:
+                    found_ans = True
+                    index = prompt.find('Final answer: ', len(task_prompt))
+                    final_ans = prompt[index:]
+                    final_ans = ans.strip().split('\n')[0][len('Final answer: '):]
+                    if final_ans == ans:
+                        ans = final_ans
+                    break
+                
+                temp_split = prompt.strip().split('\n')
+                # otherwise, extract the generated subquestion
+                if len(temp_split) < 2:
+                    break  # failed case
+                
+                subquestion = temp_split[-2]
+                if not subquestion.startswith('Subquestion: '):
+                    break  # failed case
+                subquestion = subquestion[len("Subquestion: "):]
+                
+                relation = get_relation(subquestion, rels, rel_emb, contriever, tokenizer)
+                
+                generated_answer = temp_split[-1][len("Generated answer: "):]
+                
+                # Genertaed answer: XX is {}. YY
+                ga_seg = generated_answer.strip().split('. ')
+                query_phrase = subquestion
+                
+                if len(ga_seg) >= 2:
+                    query_phrase = ga_seg[0]
+                    answer_object = ". ".join(ga_seg[1:])
+                else:
+                    break
+                
+                fact_sent, contra_or_not, fact_object = get_fact_form_kg(subject, relation, entity2id, ent2alias,
+                                                                         rel2id, kg_s_r_o, id2entity)
+                
+                # check whether there is a contradiction:
+                # contra_promt = "Retrieved fact {} to generated answer, so the intermediate answer is: {}\n"
+                contra_promt = "Retrieved fact {} to generated answer, so continue with this subject: {}.\n"
+                if contra_or_not:
+                    does_or_doesnot = "contradicts"
+                    inter_answer = fact_object
+                else:
+                    does_or_doesnot = "does not contradict"
+                    inter_answer = answer_object
+                
+                contra_promt = contra_promt.format(does_or_doesnot, inter_answer)
+                
+                # reset pointer and var for the next hop:
+                subject = fit_subject_on_kg(inter_answer, entity2id, ent_emb, contriever, tokenizer, ents,
+                                            kg_s_r_o, ent2alias)
+                ans = subject
+                prompt = prompt + '\nRetrieved fact: ' + fact_sent + '.\n' + contra_promt
+                
+                if print_prompt:
+                    print("=" * 20, f"hop {i + 1}", "=" * 20)
+                    print(prompt[len(task_prompt) + 2:])
+            
+            # if not found_ans:
+            #     continue
+            if print_prompt:
+                print("=" * 20, "End", "=" * 20)
+                print(prompt[len(task_prompt) + 2:])
+            
+            answer = "answer"
+            answer_alias = "answer_alias"
+            if (d["case_id"] - 1) in rand_list:
+                answer = "new_" + answer
+                answer_alias = "new_" + answer_alias
+            if print_prompt:
+                print("=" * 20, "Answers", "=" * 20)
+                print(d[answer], d[answer_alias])
+            if ans == d[answer] or ans in d[answer_alias]:
+                cor += 1
+                break
+        print(cor, tot)
     
     print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
 

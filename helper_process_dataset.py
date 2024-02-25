@@ -87,3 +87,99 @@ def process_datasets(dataset, file_path, seed_num=100, edit_num=1000, dataset_na
             json.dump(caseid_to_qa_pair, file, indent=4)
     
     return new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list
+
+
+def get_ent_rel_id(dataset):
+    entity2id = {}
+    id2entity = {}
+    
+    rel2id = {}
+    id2rel = {}
+    for idx, d in enumerate(dataset):
+        for edit in d['requested_rewrite']:
+            rel = edit['prompt']
+            id = edit['relation_id']
+            if rel not in rel2id.keys():
+                rel2id[rel] = id
+            else:
+                if rel2id[rel] != id:
+                    print(rel2id[rel], " -- ", id)
+            
+            if id not in id2rel.keys():
+                id2rel[id] = rel
+            else:
+                if id2rel[id] != rel:
+                    print(id2rel[id], " -- ", rel)
+        
+        orig = d['orig']
+        for pref in ["", "new_"]:
+            for i, (triple, label) in enumerate(zip(orig[pref + 'triples'], orig[pref + 'triples_labeled'])):
+                for j, (id, ent) in enumerate(zip(triple, label)):
+                    if j % 2:
+                        continue
+                    
+                    if ent not in entity2id.keys():
+                        entity2id[ent] = id
+                    
+                    if id not in id2entity.keys():
+                        id2entity[id] = ent
+                        
+    return entity2id, id2entity, rel2id, id2rel
+
+
+def process_kg(dataset, rand_list):
+    edit_kg = {}
+    
+    kg_s_r_o = {}
+    
+    for n in rand_list:
+        d = dataset[n]
+        fact_tuples = d['orig']['edit_triples']
+        for index, (fact_tuple, edit) in enumerate(zip(fact_tuples, d["requested_rewrite"])):
+            (s, r, o) = fact_tuple
+            
+            # ordinary kg construction:
+            if s in edit_kg.keys():
+                if o in edit_kg[s].keys():
+                    if r in edit_kg[s][o]:
+                        continue
+                    else:
+                        edit_kg[s][o].add(r)
+                else:
+                    edit_kg[s][o] = {r}
+            else:
+                edit_kg[s] = {o: {r}}
+            
+            # test if there are sro1 and sro2 contradiction:
+            if s in kg_s_r_o.keys():
+                if r in kg_s_r_o[s].keys():
+                    if o not in kg_s_r_o[s][r]:
+                        kg_s_r_o[s][r].add(o)
+                else:
+                    kg_s_r_o[s][r] = {o}
+            else:
+                kg_s_r_o[s] = {r: {o}}
+
+    return edit_kg, kg_s_r_o
+
+
+def get_subject(d):
+    return d['orig']['triples_labeled'][0][0]
+
+
+def get_ent_alias(dataset, rand_list, entity2id):
+    ent2alias = {}
+    alias2id = {}
+    for idx, d in enumerate(dataset):
+        for hop in d['single_hops']:
+            answer = hop['answer']
+            if answer not in entity2id.keys():
+                print(f"ERROR - {answer} not in the entity2id Key Set.")
+                break
+            answer_alias = hop['answer_alias']
+            ent2alias[answer] = set(answer_alias)
+            for alias in answer_alias:
+                alias2id[alias] = entity2id[answer]
+    
+    return ent2alias, alias2id
+
