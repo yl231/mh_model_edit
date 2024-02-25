@@ -202,37 +202,9 @@ def main():
         
         # embedding of facts in retrieve model:
         embs = get_sent_embeddings(new_facts, contriever, tokenizer)
-            
-    else:  # to use kg walk
-        with open(file_path + 'prompts/fill_out_ga_w_blank2.txt', 'r', encoding='utf-8') as f:
-            task_prompt = f.read()
-        dataset_path = "MQuAKE-CF-3k-idMatched"
-        with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
-            dataset = json.load(f)
-        instance_num = 3000  # currently only for -CF.
-        rand_list = random.sample(range(instance_num), edit_num)
 
-        entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
-        edit_kg, kg_s_r_o = process_kg(dataset, rand_list)
-        ent2alias, alias2id = get_ent_alias(dataset, rand_list, entity2id)
+        logger.info("Prepare works are Done!")
 
-        # retrieve model:
-        contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
-        tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
-
-        rels = list(rel2id.keys())
-        rel_emb = get_sent_embeddings(rels, contriever, tokenizer)
-
-        ents = list(entity2id.keys())
-        ent_emb = get_sent_embeddings(ents, contriever, tokenizer)
-        
-        
-        
-    
-    logger.info("Prepare works are Done!")
-    if kg_walk:
-        return 0
-    else:
         evaluate_on_dataset_full_functionality(dataset=dataset,
                                                task_prompt=task_prompt,
                                                new_facts=new_facts,
@@ -259,6 +231,56 @@ def main():
                                                print_prompt=print_prompt,
                                                dataset_name=dataset_name
                                                )
+            
+    else:  # to use kg walk
+        with open(file_path + 'prompts/fill_out_ga_w_blank2.txt', 'r', encoding='utf-8') as f:
+            task_prompt = f.read()
+        dataset_path = "MQuAKE-CF-3k-idMatched"
+        with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
+            dataset = json.load(f)
+        instance_num = 3000  # currently only for -CF.
+        rand_list = random.sample(range(instance_num), edit_num)
+
+        entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
+        edit_kg, kg_s_r_o = process_kg(dataset, rand_list)
+        ent2alias, alias2id = get_ent_alias(dataset, rand_list, entity2id)
+
+        # retrieve model:
+        contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
+        tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
+
+        rels = list(rel2id.keys())
+        rel_emb = get_sent_embeddings(rels, contriever, tokenizer)
+
+        ents = list(entity2id.keys())
+        ent_emb = get_sent_embeddings(ents, contriever, tokenizer)
+
+        logger.info("Prepare works are Done!")
+        
+        evaluate_on_dataset_kg_walk(dataset=dataset,
+                                    task_prompt=task_prompt,
+                                    sc_facts=sc_facts,
+                                    model=model,
+                                    gptj_tokenizer=gptj_tokenizer,
+                                    device=device,
+                                    rels=rels,
+                                    rel_emb=rel_emb,
+                                    contriever=contriever,
+                                    tokenizer=tokenizer,
+                                    entity2id=entity2id,
+                                    ent2alias=ent2alias,
+                                    rel2id=rel2id,
+                                    kg_s_r_o=kg_s_r_o,
+                                    id2entity=id2entity,
+                                    ent_emb=ent_emb,
+                                    ents=ents,
+                                    rand_list=rand_list,
+                                    print_prompt=print_prompt,
+                                    S=start,
+                                    T=end)
+        
+        
+    logger.info("Job finished.")
 
 
 # the full function to complete later:
