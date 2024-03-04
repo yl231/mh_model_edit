@@ -504,14 +504,14 @@ def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_toke
                 ans = subject
                 prompt = prompt + '\nRetrieved fact: ' + fact_sent + '.\n' + contra_promt
                 
-                if print_prompt:
-                    print("=" * 20, f"hop {i + 1}", "=" * 20)
-                    print(prompt[len(task_prompt) + 2:])
+                # if print_prompt:
+                #     print("=" * 20, f"hop {i + 1}", "=" * 20)
+                #     print(prompt[len(task_prompt) + 2:])
             
             # if not found_ans:
             #     continue
             if print_prompt:
-                print("=" * 20, "End", "=" * 20)
+                # print("=" * 20, "End", "=" * 20)
                 print(prompt[len(task_prompt) + 2:])
             
             answer = "answer"
