@@ -142,7 +142,7 @@ def main():
     logger.info("Args are parsed. And as follow: \n %s" % print_arguments(arguments))
     
     if model_name == "vicuna-7b":
-        gptj_tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3")
+        gptj_tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3", padding_side='left')
         model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-7b-v1.3").to(device)
         
         # llm generation stopping criteria:
@@ -159,7 +159,7 @@ def main():
         sc_end_block = StoppingCriteriaList([StoppingCriteriaSub(stops=[2023, 4515, 1996, 3796])])
     
     elif (model_name == "llama-7b"):
-        gptj_tokenizer = AutoTokenizer.from_pretrained("NousResearch/Llama-2-7b-chat-hf")
+        gptj_tokenizer = AutoTokenizer.from_pretrained("NousResearch/Llama-2-7b-chat-hf", padding_side='left')
         model = AutoModelForCausalLM.from_pretrained("NousResearch/Llama-2-7b-chat-hf").to(device)
         
         # llm generation stopping criteria:
@@ -625,7 +625,7 @@ def evaluate_on_dataset_kg_walk_breakdown_first(dataset, task_prompt, sc_facts, 
                 else:
                     break
                 
-                fact_sent, contra_or_not, fact_object = get_fact_form_kg(subject, relation, entity2id, ent2alias,
+                fact_sent, contra_or_not, fact_object = get_fact_form_kg(subject, rel, entity2id, ent2alias,
                                                                          rel2id, kg_s_r_o, id2entity)
                 # print(fact_sent)
                 
