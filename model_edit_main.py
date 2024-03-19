@@ -585,7 +585,7 @@ def evaluate_on_dataset_kg_walk_breakdown_first(dataset, task_prompt, sc_facts, 
         if print_prompt:
             print("=" * 50, f"Caseid = {d['case_id']}", "=" * 50)
         tot += 1
-        start_subject, breakdown_rels_list = break_down_into_subquestions(d, breakdown_prompt, sc_done)
+        start_subject, breakdown_rels_list = break_down_into_subquestions(d, breakdown_prompt, sc_done, gptj_tokenizer, model)
         for q_id, q in enumerate(d["questions"]):
             if print_prompt:
                 print("=" * 30, f"q_id = {q_id + 1}", "=" * 30)

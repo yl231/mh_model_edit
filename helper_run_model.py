@@ -66,7 +66,7 @@ def ga_contradict_fc2(subquestion, generated_answer, fact_sent, cot_prompt, sc_c
         return res[0], res[1]
 
 
-def call_model_batch(prompts, stop, generate_length=150, temperature=1.0):
+def call_model_batch(prompts, stop, gptj_tokenizer, model, generate_length=150, temperature=1.0):
     # Tokenize the list of prompts
     input_ids = gptj_tokenizer(prompts, return_tensors="pt", padding=True, truncation=True).input_ids.cuda()
     
@@ -87,7 +87,7 @@ def call_model_batch(prompts, stop, generate_length=150, temperature=1.0):
     return gen_texts
 
 
-def break_down_into_subquestions(d, breakdown_prompt, sc_done):
+def break_down_into_subquestions(d, breakdown_prompt, sc_done, gptj_tokenizer, model):
     subject = d['orig']['triples_labeled'][0][0]
     retval = [subject]
     
@@ -97,7 +97,7 @@ def break_down_into_subquestions(d, breakdown_prompt, sc_done):
         prompts.append(prompt)
     
     # res = call_model(prompt, stopping_criteria)[4:]
-    res = call_model_batch(prompts, sc_done, temperature=0.2)
+    res = call_model_batch(prompts, sc_done, temperature=0.2, model=model, gptj_tokenizer=gptj_tokenizer)
     for i in range(3):
         # print('-'*100)
         temp = res[i][len(breakdown_prompt):]
