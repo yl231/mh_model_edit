@@ -11,12 +11,12 @@ import atexit
 
 from transformers import StoppingCriteria, StoppingCriteriaList
 
-from helper_run_model import remove_extra_target_occurrences, call_model, able_to_quit, ga_contradict_fc2
+from helper_run_model import remove_extra_target_occurrences, call_model, able_to_quit, ga_contradict_fc2, fetch_rel_subj2subq, \
+    break_down_into_subquestions
 from helper_process_dataset import get_sent_embeddings, process_datasets, get_ent_rel_id, process_kg, get_subject, \
     get_ent_alias
 from helper_fact_subq_contra import retrieve_facts, hard_retrieve_facts, get_next_sub_question
 from kg_utils import get_relation, get_fact_form_kg, fit_subject_on_kg
-
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -106,7 +106,8 @@ def main():
     parser.add_argument('--dataset', type=str, default="CF", help='default counterfactual')
     parser.add_argument('--kg_walk', type=bool, default=False, help="whether to use kg_walk")
     parser.add_argument('--hops', type=int, default=4, help="number of hops")
-
+    parser.add_argument('--breakdown_first', type=bool, default=False, help="Breakdown subq first.")
+    
     # parser.add_argument()
     
     # parse arguments from
@@ -132,7 +133,8 @@ def main():
     print_prompt = args.print_prompt
     dataset_name = "-" + args.dataset
     kg_walk = args.kg_walk
-    hops=args.hops
+    hops = args.hops
+    breakdown_first = args.breakdown_first
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
@@ -151,7 +153,10 @@ def main():
         sc_subq = StoppingCriteriaList([StoppingCriteriaSub(stops=[13, 4035, 12470, 29901])])
         
         # Done.
-        sc_contra = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
+        sc_done = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
+
+        # this ends he block:
+        sc_end_block = StoppingCriteriaList([StoppingCriteriaSub(stops=[2023, 4515, 1996, 3796])])
     
     elif (model_name == "llama-7b"):
         gptj_tokenizer = AutoTokenizer.from_pretrained("NousResearch/Llama-2-7b-chat-hf")
@@ -165,7 +170,10 @@ def main():
         sc_subq = StoppingCriteriaList([StoppingCriteriaSub(stops=[13, 4035, 12470, 29901])])
         
         # Done.
-        sc_contra = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
+        sc_done = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
+
+        # this ends he block:
+        sc_end_block = StoppingCriteriaList([StoppingCriteriaSub(stops=[2023, 4515, 1996, 3796])])
     
     else:
         raise ValueError("Model <%s> not implemented yet." % model_name)
@@ -185,13 +193,13 @@ def main():
         
         with open(file_path + 'prompts/TaskPromptEdit_hs.txt', 'r', encoding='utf-8') as f:
             cot_prompt3 = f.read()
-    
+        
         dataset_path = "MQuAKE-CF-3k"
         if dataset_name == '-T':
             dataset_path = "MQuAKE-T"
         with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
             dataset = json.load(f)
-
+        
         # caseid_to_qa_pair is for fact-retrieval, caseid_to_sub_questions is for subq breakdown.
         new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list = process_datasets(dataset, file_path,
                                                                                             seed_num=seed_num,
@@ -204,9 +212,9 @@ def main():
         
         # embedding of facts in retrieve model:
         embs = get_sent_embeddings(new_facts, contriever, tokenizer)
-
+        
         logger.info("Prepare works are Done!")
-
+        
         evaluate_on_dataset_full_functionality(dataset=dataset,
                                                task_prompt=task_prompt,
                                                new_facts=new_facts,
@@ -218,7 +226,7 @@ def main():
                                                cot_contradiction=cot_contradiction,
                                                sc_fact=sc_facts,
                                                sc_subq=sc_subq,
-                                               sc_contra=sc_contra,
+                                               sc_contra=sc_done,
                                                rand_list=rand_list,
                                                model=model,
                                                gptj_tokenizer=gptj_tokenizer,
@@ -233,56 +241,89 @@ def main():
                                                print_prompt=print_prompt,
                                                dataset_name=dataset_name
                                                )
-            
+    
     else:  # to use kg walk
         with open(file_path + 'prompts/fill_out_ga_w_blank2.txt', 'r', encoding='utf-8') as f:
             task_prompt = f.read()
         dataset_path = "MQuAKE-CF-3k-idMatched"
         with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
             dataset = json.load(f)
+        
+        if breakdown_first:
+            with open(file_path + 'prompts/subq_breakdown.txt', 'r', encoding='utf-8') as f:
+                breakdown_prompt = f.read()
+            with open(file_path + 'prompts/relation2subq_prompt2.txt', 'r', encoding='utf-8') as f:
+                relation2subq_prompt = f.read()
+        
         instance_num = 3000  # currently only for -CF.
         rand_list = random.sample(range(instance_num), edit_num)
-
+        
         entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
         edit_kg, kg_s_r_o = process_kg(dataset, rand_list)
         ent2alias, alias2id = get_ent_alias(dataset, rand_list, entity2id)
-
+        
         # retrieve model:
         contriever = AutoModel.from_pretrained("facebook/contriever-msmarco").to(device)
         tokenizer = AutoTokenizer.from_pretrained("facebook/contriever-msmarco")
-
+        
         rels = list(rel2id.keys())
         rel_emb = get_sent_embeddings(rels, contriever, tokenizer)
-
+        
         ents = list(entity2id.keys())
         ent_emb = get_sent_embeddings(ents, contriever, tokenizer)
-
+        
         logger.info("Prepare works are Done!")
         
-        evaluate_on_dataset_kg_walk(dataset=dataset,
-                                    task_prompt=task_prompt,
-                                    sc_facts=sc_facts,
-                                    model=model,
-                                    gptj_tokenizer=gptj_tokenizer,
-                                    device=device,
-                                    rels=rels,
-                                    rel_emb=rel_emb,
-                                    contriever=contriever,
-                                    tokenizer=tokenizer,
-                                    entity2id=entity2id,
-                                    ent2alias=ent2alias,
-                                    rel2id=rel2id,
-                                    kg_s_r_o=kg_s_r_o,
-                                    id2entity=id2entity,
-                                    ent_emb=ent_emb,
-                                    ents=ents,
-                                    rand_list=rand_list,
-                                    print_prompt=print_prompt,
-                                    hops=hops,
-                                    S=start,
-                                    T=end)
-        
-        
+        if breakdown_first:
+            evaluate_on_dataset_kg_walk_breakdown_first(dataset=dataset,
+                                                        task_prompt=task_prompt,
+                                                        sc_facts=sc_facts,
+                                                        model=model,
+                                                        gptj_tokenizer=gptj_tokenizer,
+                                                        device=device,
+                                                        rels=rels,
+                                                        rel_emb=rel_emb,
+                                                        contriever=contriever,
+                                                        tokenizer=tokenizer,
+                                                        entity2id=entity2id,
+                                                        ent2alias=ent2alias,
+                                                        rel2id=rel2id,
+                                                        kg_s_r_o=kg_s_r_o,
+                                                        id2entity=id2entity,
+                                                        ent_emb=ent_emb,
+                                                        ents=ents,
+                                                        rand_list=rand_list,
+                                                        print_prompt=print_prompt,
+                                                        breakdown_prompt=breakdown_prompt,
+                                                        sc_end_block=sc_end_block,
+                                                        relation2subq_prompt=relation2subq_prompt,
+                                                        sc_done=sc_done,
+                                                        S=start,
+                                                        T=end)
+        else:
+            evaluate_on_dataset_kg_walk(dataset=dataset,
+                                        task_prompt=task_prompt,
+                                        sc_facts=sc_facts,
+                                        model=model,
+                                        gptj_tokenizer=gptj_tokenizer,
+                                        device=device,
+                                        rels=rels,
+                                        rel_emb=rel_emb,
+                                        contriever=contriever,
+                                        tokenizer=tokenizer,
+                                        entity2id=entity2id,
+                                        ent2alias=ent2alias,
+                                        rel2id=rel2id,
+                                        kg_s_r_o=kg_s_r_o,
+                                        id2entity=id2entity,
+                                        ent_emb=ent_emb,
+                                        ents=ents,
+                                        rand_list=rand_list,
+                                        print_prompt=print_prompt,
+                                        hops=hops,
+                                        S=start,
+                                        T=end)
+    
     logger.info("Job finished.")
 
 
@@ -291,7 +332,8 @@ def main():
 def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, caseid_to_qa_pair, caseid_to_sub_questions,
                                            embs, fact_retrieve, subquestion_breakdown, cot_contradiction, sc_fact,
                                            sc_subq, sc_contra, rand_list, model, gptj_tokenizer, device, contriever,
-                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt, dataset_name,
+                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt,
+                                           dataset_name,
                                            S=0, T=200):
     # Run MeLLo on the first T (T=200) examples
     
@@ -314,7 +356,7 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                         if i != 0:
                             subq = subq.format(llm_answer)
                         prompt = prompt + "\n" + "Subquestion: " + subq + "\nGenerated answer: "
-                        
+                
                 # prompt the model to generate a subquestion and a tentative answer
                 
                 prompt = call_model(prompt, sc_fact, model, gptj_tokenizer, device)
@@ -422,8 +464,8 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
         # print("-" * 100)
     
     print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
-    
-    
+
+
 def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_tokenizer, device, rels, rel_emb,
                                 contriever, tokenizer, entity2id, ent2alias, rel2id, kg_s_r_o, id2entity, ent_emb, ents,
                                 rand_list, print_prompt, hops, S=0, T=200):
@@ -530,142 +572,104 @@ def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_toke
     logger.info(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
 
 
-def backup_evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, caseid_to_qa_pair, caseid_to_sub_questions,
-                                           embs, fact_retrieve, subquestion_breakdown, cot_contradiction, sc_fact,
-                                           sc_subq, sc_contra, rand_list, model, gptj_tokenizer, device, contriever,
-                                           tokenizer, cot_prompt, fact_query_on, holistic_cot, print_prompt,
-                                           S=0, T=200):
-    # Run MeLLo on the first T (T=200) examples
-    
+def evaluate_on_dataset_kg_walk_breakdown_first(dataset, task_prompt, sc_facts, model, gptj_tokenizer, device, rels,
+                                                rel_emb,
+                                                contriever, tokenizer, entity2id, ent2alias, rel2id, kg_s_r_o,
+                                                id2entity, ent_emb, ents, sc_done, sc_end_block, relation2subq_prompt,
+                                                rand_list, print_prompt, breakdown_prompt, S=0,
+                                                T=200):
     cor = 0
     tot = 0
-    subquestion = 'Subquestion: '
     
     for d in tqdm(dataset[S:T]):
+        if print_prompt:
+            print("=" * 50, f"Caseid = {d['case_id']}", "=" * 50)
         tot += 1
-        for q in d["questions"]:
+        start_subject, breakdown_rels_list = break_down_into_subquestions(d, breakdown_prompt, sc_done)
+        for q_id, q in enumerate(d["questions"]):
+            if print_prompt:
+                print("=" * 30, f"q_id = {q_id + 1}", "=" * 30)
+            subject = start_subject
+            breakdown_rels = breakdown_rels_list[q_id]
             found_ans = False
-            prompt = task_prompt + "\n\nQuestion: " + q
-            num_single_hops = (d['case_id'] - 1) // 1000 + 2
-            llm_answer = None
             ans = None
-            for i in range(4):  # max of 4 hops
-                if subquestion_breakdown:
-                    if i < num_single_hops:
-                        subq = get_next_sub_question(d['case_id'] - 1, i, subquestion, caseid_to_sub_questions)
-                        if i != 0:
-                            subq = subq.format(llm_answer)
-                        prompt = prompt + "\n" + "Subquestion: " + subq + "\nGenerated answer: "
-                    else:
-                        found_ans = True
-                        ans = llm_answer
-                        break
-                # prompt the model to generate a subquestion and a tentative answer
+            prompt = task_prompt + "\n\nQuestion: " + q + "\n"
+            for i in range(len(breakdown_rels)):
+                relation = breakdown_rels[i]
+                rel = get_relation(relation, rels, rel_emb, contriever, tokenizer)
+                subquestion = fetch_rel_subj2subq(subject, rel, relation2subq_prompt, sc_end_block)
+                # subquestion = rel.format(subject)
+                prompt = prompt + "Subquestion: " + subquestion + "\n"
                 
-                gen = call_model(prompt, sc_fact, model, gptj_tokenizer, device)
-                if gen.strip().split('\n')[-1] == 'Retrieved fact:':
-                    gen = gen[:-len('\nRetrieved fact:')]
-                gen = remove_extra_target_occurrences(gen, "Question: ", 5)[4:]
-                # print(gen[len(task_prompt):])
-                # print("-" * 50)
-                # if final answer is there, get the answer and exit
-                quit, ans = able_to_quit(gen, task_prompt)
-                if quit:
-                    found_ans = True
-                    break
+                prompt = call_model(prompt, sc_facts, model=model, temperature=0.2, device=device,
+                                    gptj_tokenizer=gptj_tokenizer)
+                if prompt.strip().split('\n')[-1] == 'Retrieved fact:':
+                    prompt = prompt[:-len('\nRetrieved fact:')]
+                prompt = remove_extra_target_occurrences(prompt, "Question: ", 5)[4:]
                 
+                temp_split = prompt.strip().split('\n')
                 # otherwise, extract the generated subquestion
-                temp_split = gen.strip().split('\n')
                 if len(temp_split) < 2:
                     break  # failed case
-                subquestion = temp_split[-2]
                 
-                if not subquestion.startswith('Subquestion: '):
-                    break  # failed case
+                generated_answer = temp_split[-1][len("Generated answer: "):]
                 
-                generated_answer = temp_split[-1]
+                # Genertaed answer: XX is {}. YY
+                ga_seg = generated_answer.strip().split('. ')
                 query_phrase = subquestion
-                if fact_query_on == "generated_answer_formatted":
-                    if not temp_split[-1].startswith("Generated answer: "):
-                        break
-                    # Genertaed answer: XX is {}. YY
-                    ga_seg = generated_answer[len("Generated answer: "):].strip().split('. ')
-                    
-                    if len(ga_seg) == 2:
-                        query_phrase = ga_seg[0]
-                        answer_object = ga_seg[1]
                 
-                # True if we want to use hard-code facts retrieval
-                if fact_retrieve:
-                    fact_sent, _ = hard_retrieve_facts(i, d["case_id"] - 1, query_phrase, new_facts, caseid_to_qa_pair,
-                                                       embs, contriever, tokenizer)
+                if len(ga_seg) >= 2:
+                    query_phrase = ga_seg[0]
+                    answer_object = ". ".join(ga_seg[1:])
                 else:
-                    fact_ids = retrieve_facts(query_phrase, embs, contriever, tokenizer)
-                    fact_sent = new_facts[fact_ids[0]]
-                
-                # put the retrieved fact at the end of the prompt, the model self-checks if it contradicts
-                prompt = gen + '\nRetrieved fact: ' + fact_sent
-                if cot_contradiction and holistic_cot:
-                    prompt += "\nNow, let's think step by step, would there be a " \
-                              "contradiction in the generated answer to the " \
-                              "nearest subquestion given the retrieved fact? "
-                
-                if i >= num_single_hops:
-                    continue
-                
-                if cot_contradiction:
-                    yes_or_no, res = ga_contradict_fc2(subquestion, generated_answer, fact_sent, cot_prompt, sc_contra,
-                                                       model, gptj_tokenizer, device, task_prompt)
-                    if yes_or_no:
-                        do_not = "does"
-                    else:
-                        do_not = "does not"
-                    prompt = prompt + '\n' + "Retrieved fact %s contradict to generated answer, " \
-                                             "so the intermediate answer is: %s" % (do_not, res)
-                    # print(prompt[len(task_prompt):])
-                    # print("-" * 50)ga_contradict_fc2
-                    llm_answer = res
-                elif subquestion_breakdown:
-                    gen = call_model(prompt, sc_subq, model, gptj_tokenizer, device)[4:]
-                    
-                    if gen.strip().split('\n')[-1] == 'Subquestion:':
-                        gen = gen[:-len('\nSubquestion:')]
-                    
-                    # print(gen[len(task_prompt):])
-                    # print('-' * 100)
-                    
-                    llm_answer = gen.strip().split('\n')[-1].split(": ")[-1]
-                    # print(last_answer)
-                    prompt = gen
-                else:
-                    continue
-                
-                quit, ans = able_to_quit(prompt, task_prompt)
-                if quit:
-                    found_ans = True
                     break
+                
+                fact_sent, contra_or_not, fact_object = get_fact_form_kg(subject, relation, entity2id, ent2alias,
+                                                                         rel2id, kg_s_r_o, id2entity)
+                # print(fact_sent)
+                
+                # check whether there is a contradiction:
+                # contra_promt = "Retrieved fact {} to generated answer, so the intermediate answer is: {}\n"
+                contra_promt = "Retrieved fact {} to generated answer, so continue with this subject: {}.\n"
+                if contra_or_not:
+                    does_or_doesnot = "contradicts"
+                    inter_answer = fact_object
+                else:
+                    does_or_doesnot = "does not contradict"
+                    inter_answer = answer_object
+                
+                contra_promt = contra_promt.format(does_or_doesnot, inter_answer)
+                
+                # reset pointer and var for the next hop:
+                subject = fit_subject_on_kg(inter_answer, entity2id, ent_emb, contriever, tokenizer, ents,
+                                            kg_s_r_o, ent2alias)
+                ans = subject
+                prompt = prompt + '\nRetrieved fact: ' + fact_sent + '.\n' + contra_promt
+                
+                # print("=" * 20, f"hop {i+1}", "=" * 20)
+                # print(prompt[len(task_prompt)+2:])
+            
+            # if not found_ans:
+            #     continue
             if print_prompt:
-                logger.info(prompt[len(task_prompt):] + "\n")
-            if not found_ans:
-                continue
-            # if the answer is correct
-            # print(ans)
+                print("=" * 20, "End", "=" * 20)
+                print(prompt[len(task_prompt) + 2:])
+            
             answer = "answer"
             answer_alias = "answer_alias"
             if (d["case_id"] - 1) in rand_list:
                 answer = "new_" + answer
                 answer_alias = "new_" + answer_alias
-            
-            # print(d[answer], d[answer_alias])
+            if print_prompt:
+                print("=" * 20, "Answers", "=" * 20)
+                print(d[answer], d[answer_alias])
             if ans == d[answer] or ans in d[answer_alias]:
                 cor += 1
                 break
         logger.info("%s, %s" % (cor, tot))
-        # print("-" * 100)
-        print(cor, tot)
-        # print("-" * 100)
     
-    print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
+    logger.info(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
+
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,21 @@
+Let's think step by step.
+Given this problem: 
+"In which continent was Thomas Graham Jackson born?" 
+Extract relations in square parentheses into follows:
+"Thomas Graham Jackson->(place of birth)->?x->(continent)->?x"
+
+Given this problem: 
+"What is the official language of the country whose citizen is the creator of the Iron Throne?"
+Extract relations in square parentheses into follows:
+"Iron Throne->(creator)->?x->(country of citizenship)->?x->(official language)->?x"
+
+Given this problem: 
+"What continent is the country where the director/manager of "Dear Prudence" comes from?"
+Extract relations in square parentheses into follows:
+"Dear Prudence->(performer)->?x->(director / manager)->?x->(country of citizenship)->?x->(continent)->?x"
+
+Given this problem: 
+"What is the capital city of the country where the CEO of the developer of Half-Life holds citizenship?"
+Extract relations in square parentheses into follows:
+"Half-Life->(developer)->?x->(chief executive officer)->?x->(country of citizenship)->?x->(capital)->?x"
+
