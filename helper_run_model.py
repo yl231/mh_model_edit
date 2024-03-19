@@ -126,9 +126,9 @@ def extract_entities(input_string):
     return entities
 
 
-def fetch_rel_subj2subq(subject, rel, relation2subq_prompt, sc_end_block):
+def fetch_rel_subj2subq(subject, rel, relation2subq_prompt, sc_end_block, model, gptj_tokenizer):
     prompt = relation2subq_prompt + f"Given this relation: \"{rel}\" and this subject: \"{subject}\",\nThe corresponding question is"
-    output = call_model(prompt, sc_end_block, temperature=0.2, generate_length=20)
+    output = call_model(prompt, sc_end_block, temperature=0.2, generate_length=20, model=model, gptj_tokenizer=gptj_tokenizer)
     output = output.strip().split('\n\n')[5]
     output = output.strip().split('\n')[1]
     output = output.strip().split('\"')[1]
