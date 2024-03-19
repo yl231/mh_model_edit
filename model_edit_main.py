@@ -598,7 +598,7 @@ def evaluate_on_dataset_kg_walk_breakdown_first(dataset, task_prompt, sc_facts, 
                 relation = breakdown_rels[i]
                 rel = get_relation(relation, rels, rel_emb, contriever, tokenizer)
                 subquestion = fetch_rel_subj2subq(subject, rel, relation2subq_prompt, sc_end_block, model=model,
-                                                  gptj_tokenizer=gptj_tokenizer)
+                                                  gptj_tokenizer=gptj_tokenizer, device=device)
                 # subquestion = rel.format(subject)
                 prompt = prompt + "Subquestion: " + subquestion + "\n"
                 
