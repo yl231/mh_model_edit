@@ -255,7 +255,10 @@ def main():
             with open(file_path + 'prompts/relation2subq_prompt2.txt', 'r', encoding='utf-8') as f:
                 relation2subq_prompt = f.read()
         
-        instance_num = 3000  # currently only for -CF.
+        if dataset_name == '-T':
+            instance_num = 1868  # currently only for -CF.
+        else:
+            instance_num = 3000
         rand_list = random.sample(range(instance_num), edit_num)
         
         entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
