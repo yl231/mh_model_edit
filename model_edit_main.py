@@ -257,8 +257,14 @@ def main():
         
         if dataset_name == '-T':
             instance_num = 1868  # currently only for -CF.
-        else:
+            with open(file_path + f'datasets/MQuAKE-T.json', 'r') as f:
+                dataset = json.load(f)
+        elif dataset_name == '-CF':
             instance_num = 3000
+            with open(file_path + f'datasets/MQuAKE-CF-3k-idMatched.json', 'r') as f:
+                dataset = json.load(f)
+        else:
+            raise ValueError("Not implemented for dataset %s. " % dataset_name)
         rand_list = random.sample(range(instance_num), edit_num)
         
         entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
