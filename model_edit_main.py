@@ -14,7 +14,7 @@ from transformers import StoppingCriteria, StoppingCriteriaList
 from helper_run_model import remove_extra_target_occurrences, call_model, able_to_quit, ga_contradict_fc2, fetch_rel_subj2subq, \
     break_down_into_subquestions
 from helper_process_dataset import get_sent_embeddings, process_datasets, get_ent_rel_id, process_kg, get_subject, \
-    get_ent_alias
+    get_ent_alias, get_hardcode_rels_breakdown
 from helper_fact_subq_contra import retrieve_facts, hard_retrieve_facts, get_next_sub_question
 from kg_utils import get_relation, get_fact_form_kg, fit_subject_on_kg
 
@@ -158,7 +158,7 @@ def main():
         # this ends he block:
         sc_end_block = StoppingCriteriaList([StoppingCriteriaSub(stops=[2023, 4515, 1996, 3796])])
     
-    elif (model_name == "llama-7b"):
+    elif model_name == "llama-7b":
         gptj_tokenizer = AutoTokenizer.from_pretrained("NousResearch/Llama-2-7b-chat-hf", padding_side='left')
         model = AutoModelForCausalLM.from_pretrained("NousResearch/Llama-2-7b-chat-hf").to(device)
         
@@ -285,6 +285,7 @@ def main():
                                                         rel_emb=rel_emb,
                                                         contriever=contriever,
                                                         tokenizer=tokenizer,
+                                                        subq_breakdown=subquestion_breakdown,
                                                         entity2id=entity2id,
                                                         ent2alias=ent2alias,
                                                         rel2id=rel2id,
@@ -573,7 +574,7 @@ def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_toke
 
 
 def evaluate_on_dataset_kg_walk_breakdown_first(dataset, task_prompt, sc_facts, model, gptj_tokenizer, device, rels,
-                                                rel_emb,
+                                                rel_emb, subq_breakdown,
                                                 contriever, tokenizer, entity2id, ent2alias, rel2id, kg_s_r_o,
                                                 id2entity, ent_emb, ents, sc_done, sc_end_block, relation2subq_prompt,
                                                 rand_list, print_prompt, breakdown_prompt, S=0,
@@ -585,12 +586,18 @@ def evaluate_on_dataset_kg_walk_breakdown_first(dataset, task_prompt, sc_facts, 
         if print_prompt:
             print("=" * 50, f"Caseid = {d['case_id']}", "=" * 50)
         tot += 1
-        start_subject, breakdown_rels_list = break_down_into_subquestions(d, breakdown_prompt, sc_done, gptj_tokenizer, model)
+        if subq_breakdown:
+            start_subject, breakdown_rels_list = get_hardcode_rels_breakdown(d, rand_list)
+        else:
+            start_subject, breakdown_rels_list = break_down_into_subquestions(d, breakdown_prompt, sc_done, gptj_tokenizer, model)
         for q_id, q in enumerate(d["questions"]):
             if print_prompt:
                 print("=" * 30, f"q_id = {q_id + 1}", "=" * 30)
             subject = start_subject
-            breakdown_rels = breakdown_rels_list[q_id]
+            if subq_breakdown:
+                breakdown_rels = breakdown_rels_list
+            else:
+                breakdown_rels = breakdown_rels_list[q_id]
             found_ans = False
             ans = None
             prompt = task_prompt + "\n\nQuestion: " + q + "\n"

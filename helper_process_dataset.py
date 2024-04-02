@@ -42,7 +42,7 @@ def process_datasets(dataset, file_path, seed_num=100, edit_num=1000, dataset_na
             rand_list = json.load(f)
     else:
         rand_list = random.sample(range(instance_num), edit_num)
-
+    
     get_caseid2qa_pair = False
     caseid_to_qa_pair = {}
     caseid_to_qa_pair_path = f"{file_path}/datasets/hard_code_facts/caseid_to_qa_pair_{edit_num}_{seed_num}_{dataset_name}.json"
@@ -51,9 +51,7 @@ def process_datasets(dataset, file_path, seed_num=100, edit_num=1000, dataset_na
             caseid_to_qa_pair = json.load(f)
     else:
         get_caseid2qa_pair = True
-        
-
-        
+    
     for n in rand_list:
         d = dataset[n]
         if get_caseid2qa_pair:
@@ -123,7 +121,7 @@ def get_ent_rel_id(dataset):
                     
                     if id not in id2entity.keys():
                         id2entity[id] = ent
-                        
+    
     return entity2id, id2entity, rel2id, id2rel
 
 
@@ -159,7 +157,7 @@ def process_kg(dataset, rand_list):
                     kg_s_r_o[s][r] = {o}
             else:
                 kg_s_r_o[s] = {r: {o}}
-
+    
     return edit_kg, kg_s_r_o
 
 
@@ -183,3 +181,10 @@ def get_ent_alias(dataset, rand_list, entity2id):
     
     return ent2alias, alias2id
 
+
+def get_hardcode_rels_breakdown(d, rand_list):
+    triples_labeled = "triples_labeled"
+    if (d["case_id"] - 1) in rand_list:
+        triples_labeled = "new_" + triples_labeled
+    return_rels = [triple[1] for triple in d['orig'][triples_labeled]]
+    return d['orig']['triples_labeled'][0][0], return_rels
