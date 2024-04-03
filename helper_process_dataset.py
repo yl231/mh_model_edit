@@ -88,9 +88,13 @@ def process_datasets(dataset, file_path, seed_num=100, edit_num=1000, dataset_na
 
 
 def get_ent_rel_id(file_path, dataset):
-    dataset_name = 'CF'
+    
     if len(dataset) == 1868:
         dataset_name = 'T'
+    elif len(dataset) == 3000:
+        dataset_name = 'CF'
+    else:
+        raise ValueError("Dataset length is incorrect. Check dataset.")
     with open(f'{file_path}/datasets/{dataset_name}/entity2id.json', 'r') as f:
         entity2id = json.load(f)
 
