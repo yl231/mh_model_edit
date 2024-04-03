@@ -245,9 +245,6 @@ def main():
     else:  # to use kg walk
         with open(file_path + 'prompts/fill_out_ga_w_blank2.txt', 'r', encoding='utf-8') as f:
             task_prompt = f.read()
-        dataset_path = "MQuAKE-CF-3k-idMatched"
-        with open(file_path + f'datasets/{dataset_path}.json', 'r') as f:
-            dataset = json.load(f)
         
         if breakdown_first:
             with open(file_path + 'prompts/subq_breakdown.txt', 'r', encoding='utf-8') as f:
@@ -448,7 +445,6 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                 
                 quit, ans = able_to_quit(prompt, task_prompt)
                 if quit:
-                    logger.info("I quit at the end -------------------------------")
                     found_ans = True
                     break
             if print_prompt:
@@ -470,10 +466,9 @@ def evaluate_on_dataset_full_functionality(dataset, task_prompt, new_facts, case
                 break
         logger.info("%s, %s" % (cor, tot))
         # print("-" * 100)
-        print(cor, tot)
         # print("-" * 100)
     
-    print(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
+    logger.info(f'Multi-hop acc = {cor / tot} ({cor} / {tot})')
 
 
 def evaluate_on_dataset_kg_walk(dataset, task_prompt, sc_facts, model, gptj_tokenizer, device, rels, rel_emb,
