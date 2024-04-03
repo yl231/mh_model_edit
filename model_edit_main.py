@@ -264,7 +264,7 @@ def main():
             raise ValueError("Not implemented for dataset %s. " % dataset_name)
         rand_list = random.sample(range(instance_num), edit_num)
         
-        entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(dataset)
+        entity2id, id2entity, rel2id, id2rel = get_ent_rel_id(file_path, dataset)
         edit_kg, kg_s_r_o = process_kg(dataset, rand_list)
         ent2alias, alias2id = get_ent_alias(dataset, rand_list, entity2id)
         
