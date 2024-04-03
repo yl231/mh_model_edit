@@ -87,41 +87,21 @@ def process_datasets(dataset, file_path, seed_num=100, edit_num=1000, dataset_na
     return new_facts, caseid_to_qa_pair, caseid_to_sub_questions, rand_list
 
 
-def get_ent_rel_id(dataset):
-    entity2id = {}
-    id2entity = {}
-    
-    rel2id = {}
-    id2rel = {}
-    for idx, d in enumerate(dataset):
-        for edit in d['requested_rewrite']:
-            rel = edit['prompt']
-            id = edit['relation_id']
-            if rel not in rel2id.keys():
-                rel2id[rel] = id
-            else:
-                if rel2id[rel] != id:
-                    print(rel2id[rel], " -- ", id)
-            
-            if id not in id2rel.keys():
-                id2rel[id] = rel
-            else:
-                if id2rel[id] != rel:
-                    print(id2rel[id], " -- ", rel)
-        
-        orig = d['orig']
-        for pref in ["", "new_"]:
-            for i, (triple, label) in enumerate(zip(orig[pref + 'triples'], orig[pref + 'triples_labeled'])):
-                for j, (id, ent) in enumerate(zip(triple, label)):
-                    if j % 2:
-                        continue
-                    
-                    if ent not in entity2id.keys():
-                        entity2id[ent] = id
-                    
-                    if id not in id2entity.keys():
-                        id2entity[id] = ent
-    
+def get_ent_rel_id(file_path, dataset):
+    dataset_name = 'CF'
+    if len(dataset) == 1868:
+        dataset_name = 'T'
+    with open(f'{file_path}/datasets/{dataset_name}/entity2id.json', 'r') as f:
+        entity2id = json.load(f)
+
+    with open(f'{file_path}/datasets/{dataset_name}/id2entity.json', 'r') as f:
+        id2entity = json.load(f)
+
+    with open(f'{file_path}/datasets/{dataset_name}/rel2id.json', 'r') as f:
+        rel2id = json.load(f)
+
+    with open(f'{file_path}/datasets/{dataset_name}/id2rel.json', 'r') as f:
+        id2rel = json.load(f)
     return entity2id, id2entity, rel2id, id2rel
 
 
