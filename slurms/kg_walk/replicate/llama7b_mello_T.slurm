@@ -24,4 +24,4 @@ CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/co
 --dataset T \
 --edit_num 1868 \
 --start 0 \
---end 1868g
+--end 1868
