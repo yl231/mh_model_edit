@@ -107,6 +107,7 @@ def main():
     parser.add_argument('--kg_walk', type=bool, default=False, help="whether to use kg_walk")
     parser.add_argument('--hops', type=int, default=4, help="number of hops")
     parser.add_argument('--breakdown_first', type=bool, default=False, help="Breakdown subq first.")
+    parser.add_argument('--postfix_breakdown_prompt', type=str, default='')
     
     # parser.add_argument()
     
@@ -135,6 +136,7 @@ def main():
     kg_walk = args.kg_walk
     hops = args.hops
     breakdown_first = args.breakdown_first
+    postfix_breakdown_prompt = args.postfix_breakdown_prompt
     
     save_logger_setup(logger, output_dir + "%s.txt" % name_of_the_run, delete_duplicate_output_file)
     
@@ -247,8 +249,12 @@ def main():
             task_prompt = f.read()
         
         if breakdown_first:
-            with open(file_path + 'prompts/subq_breakdown.txt', 'r', encoding='utf-8') as f:
-                breakdown_prompt = f.read()
+            try:
+                with open(file_path + f'prompts/subq_breakdown{postfix_breakdown_prompt}.txt', 'r', encoding='utf-8') as f:
+                    breakdown_prompt = f.read()
+            except Exception:
+                raise ValueError(f"postfix_breakdown_prompt = {postfix_breakdown_prompt} not created for breakdown prompt yet.")
+            
             with open(file_path + 'prompts/relation2subq_prompt2.txt', 'r', encoding='utf-8') as f:
                 relation2subq_prompt = f.read()
         
