@@ -2,20 +2,20 @@ Let's think step by step.
 Given this problem: 
 "Who is the head of government of the country to which Joe Biden belongs?",
 Extract relations in square parentheses into follows:
-"Joe Biden->(country of citizenship)->?x->(head of government)->?x"
+"Joe Biden->(country of citizenship)->(head of government)->answer"
 
 Given this problem: 
 "Who is the head of state of the country where Joe Biden held citizenship?"
 Extract relations in square parentheses into follows:
-"Joe Biden->(country of citizenship)->?x->(head of state)->?x"
+"Joe Biden->(country of citizenship)->(head of state)->answer"
 
 Given this problem: 
 "Who is the head of state of the country where Micheal's genre of music originated?"
 Extract relations in square parentheses into follows:
-"Micheal->(genre of music)->?x->(country of origin)->?x->(head of state)->?x"
+"Micheal->(genre of music)->(country of origin)->(head of state)->answer"
 
 Given this problem: 
 "Who is the head of government in the location where Micheal' employer is headquartered?"
 Extract relations in square parentheses into follows:
-"Micheal->(employer)->?x->(headquarters location)->?x->(head of government)->?x"
+"Micheal->(employer)->(headquarters location)->(head of government)->answer"
 
