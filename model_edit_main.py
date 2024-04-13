@@ -4,7 +4,7 @@ import random
 from tqdm import tqdm
 import torch
 
-from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM, GPTJForCausalLM
 import argparse
 import logging
 import atexit
@@ -174,8 +174,24 @@ def main():
         # Done.
         sc_done = StoppingCriteriaList([StoppingCriteriaSub(stops=[25632, 29889], length=2)])
 
-        # this ends he block:
+        # this ends the block:
         sc_end_block = StoppingCriteriaList([StoppingCriteriaSub(stops=[2023, 4515, 1996, 3796])])
+        
+    elif model_name == 'gptj-6b':
+        model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B").to(device)
+        gptj_tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
+
+        # Retrieve facts:
+        sc_facts = StoppingCriteriaList([StoppingCriteriaSub(stops=[9781, 28130, 1109, 25])])
+
+        # Subquestion:
+        sc_subq = StoppingCriteriaList([StoppingCriteriaSub(stops=[7004, 25652, 25, 220])])
+
+        # Done.
+        sc_done = StoppingCriteriaList([StoppingCriteriaSub(stops=[45677, 13], length=2)])
+
+        # This ends the block.
+        sc_end_block = StoppingCriteriaList([StoppingCriteriaSub(stops=[1212, 5645, 262, 2512, 13])])
     
     else:
         raise ValueError("Model <%s> not implemented yet." % model_name)
