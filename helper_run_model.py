@@ -1,5 +1,5 @@
 def call_model(prompt, stop, model, gptj_tokenizer, device, generate_length=150, temperature=1.0):
-    encoding = gptj_tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+    encoding = gptj_tokenizer(prompt, return_tensors="pt")
     input_ids = encoding['input_ids'].to(device)
     attention_mask = encoding['attention_mask'].to(device)
     gen_tokens = model.generate(
