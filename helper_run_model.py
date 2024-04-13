@@ -1,11 +1,15 @@
 def call_model(prompt, stop, model, gptj_tokenizer, device, generate_length=150, temperature=1.0):
-    input_ids = gptj_tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+    encoding = gptj_tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+    input_ids = encoding['input_ids'].to(device)
+    attention_mask = encoding['attention_mask'].to(device)
     gen_tokens = model.generate(
         input_ids,
         do_sample=True,
+        attention_mask=attention_mask,
         max_length=len(input_ids[0]) + generate_length,
         stopping_criteria=stop,
-        temperature=temperature
+        temperature=temperature,
+        pad_token_id=gptj_tokenizer.eos_token_id
     )
     gen_text = gptj_tokenizer.batch_decode(gen_tokens)[0]
     gen_text = gen_text.replace(gptj_tokenizer.eos_token, '')
