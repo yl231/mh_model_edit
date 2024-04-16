@@ -15,13 +15,13 @@ export HF_HOME=/mnt/vstor/CSE_CSDS_VXC204/sxz517/cache_zoo/HF_cache/.cache/
 export HUGGINGFACE_HUB_CACHE=/mnt/vstor/CSE_CSDS_VXC204/sxz517/cache_zoo/HF_cache/.cache/
 
 CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/model_edit_main.py \
---model_name llama-7b \
+--model_name vicuna-7b \
 --device cuda \
 --file_path /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/ \
 --seed 100 \
 --output_dir /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/output/ \
 --delete_duplicate_output_file True \
 --dataset CF \
---edit_num 3000 \
+--edit_num 1000 \
 --start 0 \
 --end 3000 
