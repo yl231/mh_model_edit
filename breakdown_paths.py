@@ -9,6 +9,14 @@ import argparse
 import logging
 
 from helper_run_model import break_down_into_subquestions
+from model_edit_main import print_arguments
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO
+)
 
 
 class StoppingCriteriaSub(StoppingCriteria):
@@ -38,6 +46,9 @@ dataset_name = "-" + args.dataset
 file_path = args.file_path
 
 device = 'cuda'
+
+arguments = vars(args)
+logger.info("Args are parsed. And as follow: \n %s" % print_arguments(arguments))
 
 if model_name == "vicuna-7b":
     gptj_tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3", padding_side='left')
@@ -96,6 +107,7 @@ else:
     raise ValueError("Not implemented for dataset %s. " % dataset_name)
 
 
+
 rels_per_question = []
 for idx in range(len(dataset)):
     d = dataset[idx]
@@ -107,6 +119,9 @@ for idx in range(len(dataset)):
     if not idx % 10:
         with open(file_path + f'datasets/rels_per_question_{dataset_name}_{model_name}.json', 'w') as file:
             json.dump(rels_per_question, file)
+        logger.info(f"Saved idx {idx + 1}.")
 
 with open(file_path + f'datasets/rels_per_question_{dataset_name}_{model_name}.json', 'w') as file:
     json.dump(rels_per_question, file)
+
+logger.info(f"All saved.")
