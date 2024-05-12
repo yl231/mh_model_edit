@@ -101,7 +101,7 @@ if dataset_name == '-T':
         dataset = json.load(f)
 elif dataset_name == '-CF':
     instance_num = 3000
-    with open(file_path + f'datasets/MQuAKE-CF-3k-position-sports.json', 'r') as f:
+    with open(file_path + f'datasets/MQuAKE-CF-3k-idMatched.json', 'r') as f:
         dataset = json.load(f)
 else:
     raise ValueError("Not implemented for dataset %s. " % dataset_name)
