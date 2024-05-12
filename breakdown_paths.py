@@ -121,7 +121,7 @@ for idx in range(len(dataset)):
             json.dump(rels_per_question, file)
         logger.info(f"Saved idx {idx + 1}.")
 
-with open(file_path + f'datasets/rels_per_question_{dataset_name}_{model_name}.json', 'w') as file:
+with open(file_path + f'datasets/rels_per_question_{dataset_name}_{model_name}_pre-fix.json', 'w') as file:
     json.dump(rels_per_question, file)
 
 logger.info(f"All saved.")
