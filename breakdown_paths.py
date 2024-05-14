@@ -103,6 +103,10 @@ elif dataset_name == '-CF':
     instance_num = 3000
     with open(file_path + f'datasets/MQuAKE-CF-3k-idMatched.json', 'r') as f:
         dataset = json.load(f)
+elif dataset_name == '-CF-9k':
+    instance_num = 9218
+    with open(file_path + f'datasets/MQuAKE-CF-9k-idMatched.json', 'r') as f:
+        dataset = json.load(f)
 else:
     raise ValueError("Not implemented for dataset %s. " % dataset_name)
 
@@ -117,7 +121,7 @@ for idx in range(len(dataset)):
                                                           gptj_tokenizer,
                                                           model)[1])
     if not idx % 10:
-        with open(file_path + f'datasets/rels_per_question_{dataset_name}_{model_name}.json', 'w') as file:
+        with open(file_path + f'datasets/rels_per_question_{dataset_name}_{model_name}_pre-fix.json', 'w') as file:
             json.dump(rels_per_question, file)
         logger.info(f"Saved idx {idx + 1}.")
 
