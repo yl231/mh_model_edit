@@ -15,7 +15,7 @@ export HF_HOME=/mnt/vstor/CSE_CSDS_VXC204/sxz517/cache_zoo/HF_cache/.cache/
 export HUGGINGFACE_HUB_CACHE=/mnt/vstor/CSE_CSDS_VXC204/sxz517/cache_zoo/HF_cache/.cache/
 
 CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/slurms/kg_walk/breakdown_first/ablation_on_rel2subq/ablation_model_edit_main.py \
---model_name vicuna-7b \
+--model_name llama-7b \
 --device cuda \
 --file_path /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/ \
 --seed 100 \
@@ -25,4 +25,5 @@ CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/co
 --breakdown_first True \
 --edit_num 3000 \
 --start 0 \
---end 3000 
+--end 3000 \
+--ablation_code 2

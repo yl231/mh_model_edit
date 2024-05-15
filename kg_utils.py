@@ -1,8 +1,16 @@
-from helper_fact_subq_contra import retrieve_facts
+from helper_fact_subq_contra import retrieve_facts, retrieve_facts2
 
 
 def get_relation(subquestion, rels, rel_emb, contriever, tokenizer):
     rel_idx = retrieve_facts(subquestion, rel_emb, contriever, tokenizer)
+    rel = rels[rel_idx[0]]
+    return rel
+
+
+def get_relation2(subquestion, rels, rel_emb, contriever, tokenizer):
+    rel_idx = retrieve_facts2(subquestion, rel_emb, contriever, tokenizer)
+    if rel_idx is None:
+        return None
     rel = rels[rel_idx[0]]
     return rel
 
@@ -20,6 +28,9 @@ def get_fact_form_kg(subject, rel, entity2id, ent2alias, rel2id, kg_s_r_o, id2en
         return "<no fact>", False, None
     
     # rel is retrived using embedding from all rels in the dataset
+    if rel is None:
+        return "<no fact>", False, None
+    
     rel_id = rel2id[rel]
     
     if subject_id in kg_s_r_o.keys():
