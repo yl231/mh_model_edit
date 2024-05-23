@@ -17,4 +17,5 @@ export HUGGINGFACE_HUB_CACHE=/mnt/vstor/CSE_CSDS_VXC204/sxz517/cache_zoo/HF_cach
 CUDA_VISIBLE_DEVICES=0 python /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/breakdown_paths.py \
 --model_name llama-7b \
 --file_path /mnt/vstor/CSE_CSDS_VXC204/sxz517/mh_model_edit/code_git/mh_model_edit/ \
---dataset CF
+--dataset CF \
+--use_mastered True

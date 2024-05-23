@@ -39,11 +39,13 @@ parser = argparse.ArgumentParser(description='command line arguments')
 parser.add_argument('--model_name', type=str, help='Model for the edits.')
 parser.add_argument('--dataset', type=str, default="CF", help='default counterfactual')
 parser.add_argument('--file_path', type=str, help='directory path to files')
+parser.add_argument('--use_mastered', type=bool, default=False)
 
 args = parser.parse_args()
 model_name = args.model_name
 dataset_name = "-" + args.dataset
 file_path = args.file_path
+use_mastered = args.use_mastered
 
 device = 'cuda'
 
@@ -95,20 +97,36 @@ try:
 except Exception:
     raise ValueError(f"postfix_breakdown_prompt =  not created for breakdown prompt yet.")
 
-if dataset_name == '-T':
-    instance_num = 1868  # currently only for -CF.
-    with open(file_path + f'datasets/MQuAKE-T.json', 'r') as f:
-        dataset = json.load(f)
-elif dataset_name == '-CF':
-    instance_num = 3000
-    with open(file_path + f'datasets/MQuAKE-CF-3k-idMatched.json', 'r') as f:
-        dataset = json.load(f)
-elif dataset_name == '-CF-9k':
-    instance_num = 9218
-    with open(file_path + f'datasets/MQuAKE-CF-9k-idMatched.json', 'r') as f:
-        dataset = json.load(f)
+if use_mastered:
+    if dataset_name == '-T':
+        instance_num = 1864  # currently only for -CF.
+        with open(file_path + f'datasets/modified_mquake/MQuAKE-T-Remastered.json', 'r') as f:
+            dataset = json.load(f)
+    elif dataset_name == '-CF':
+        instance_num = 3000
+        with open(file_path + f'datasets/modified_mquake/MQuAKE-3k-Remastered.json', 'r') as f:
+            dataset = json.load(f)
+    elif dataset_name == '-CF-9k':
+        instance_num = 9171
+        with open(file_path + f'datasets/modified_mquake/MQuAKE-9k-Remastered.json', 'r') as f:
+            dataset = json.load(f)
+    else:
+        raise ValueError("Not implemented for dataset %s. " % dataset_name)
 else:
-    raise ValueError("Not implemented for dataset %s. " % dataset_name)
+    if dataset_name == '-T':
+        instance_num = 1868  # currently only for -CF.
+        with open(file_path + f'datasets/MQuAKE-T.json', 'r') as f:
+            dataset = json.load(f)
+    elif dataset_name == '-CF':
+        instance_num = 3000
+        with open(file_path + f'datasets/MQuAKE-CF-3k-idMatched.json', 'r') as f:
+            dataset = json.load(f)
+    elif dataset_name == '-CF-9k':
+        instance_num = 9218
+        with open(file_path + f'datasets/MQuAKE-CF-9k-idMatched.json', 'r') as f:
+            dataset = json.load(f)
+    else:
+        raise ValueError("Not implemented for dataset %s. " % dataset_name)
 
 
 
